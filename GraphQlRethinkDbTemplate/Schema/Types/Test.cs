@@ -1,4 +1,4 @@
-﻿using GGraphQlRethinkDbTemplateAttributes;
+﻿using GraphQlRethinkDbTemplate.Attributes;
 using GraphQL.Conventions;
 
 namespace GraphQlRethinkDbTemplate.Schema.Types

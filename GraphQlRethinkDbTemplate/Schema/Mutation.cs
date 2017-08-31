@@ -1,4 +1,4 @@
-﻿using GGraphQlRethinkDbTemplateDatabase;
+﻿using GraphQlRethinkDbTemplate.Database;
 using GraphQlRethinkDbTemplate.Schema.Output;
 using GraphQlRethinkDbTemplate.Schema.Types;
 using GraphQL.Conventions;
