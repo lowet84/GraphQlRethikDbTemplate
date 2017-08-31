@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using RethinkDb.Driver;
 using RethinkDb.Driver.Net;
 
-namespace GraphQlRethikDbTemplate.Database
+namespace GraphQlRethinkDbTemplate.Database
 {
     public partial class DbContext : IDbContext
     {

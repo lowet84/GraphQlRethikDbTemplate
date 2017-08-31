@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using GraphQlRethikDbTemplate.Attributes;
+using GraphQlRethinkDbTemplate.Attributes;
 using GraphQL.Conventions;
 using GraphQLParser.AST;
 using Newtonsoft.Json;
 using RethinkDb.Driver.Model;
 
-namespace GraphQlRethikDbTemplate.Database
+namespace GraphQlRethinkDbTemplate.Database
 {
     public partial class DbContext
     {

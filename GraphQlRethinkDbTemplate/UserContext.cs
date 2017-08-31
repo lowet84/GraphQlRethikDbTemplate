@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using GraphQlRethikDbTemplate.Database;
-using GraphQlRethikDbTemplate.Schema;
+using GraphQlRethinkDbTemplate.Database;
+using GraphQlRethinkDbTemplate.Schema;
 using GraphQL.Conventions;
 using GraphQLParser;
 using GraphQLParser.AST;
 using Newtonsoft.Json.Linq;
 
-namespace GraphQlRethikDbTemplate
+namespace GraphQlRethinkDbTemplate
 {
     public class UserContext : IUserContext, IDataLoaderContextProvider
     {

@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using GraphQlRethikDbTemplate.Attributes;
-using GraphQlRethikDbTemplate.Schema;
+using GraphQlRethinkDbTemplate.Attributes;
+using GraphQlRethinkDbTemplate.Schema;
 
-namespace GraphQlRethikDbTemplate.Database
+namespace GraphQlRethinkDbTemplate.Database
 {
     public partial class DbContext
     {
-        private const string DatabaseName = "GraphQlRethikDbTemplate";
+        private const string DatabaseName = "GraphQlRethinkDbTemplate";
         private const string DeafultDatabase = "localhost";
 
         private enum SpecialTables

@@ -1,4 +1,4 @@
-﻿namespace GraphQlRethikDbTemplate.Database
+﻿namespace GGraphQlRethinkDbTemplateDatabase
 {
     public interface IDbContext
     {

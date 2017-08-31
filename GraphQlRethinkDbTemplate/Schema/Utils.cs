@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using GraphQlRethikDbTemplate.Attributes;
+using GraphQlRethinkDbTemplate.Attributes;
 
-namespace GraphQlRethikDbTemplate.Schema
+namespace GraphQlRethinkDbTemplate.Schema
 {
     public static class Utils
     {

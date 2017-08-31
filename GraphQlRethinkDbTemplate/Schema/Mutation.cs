@@ -1,10 +1,10 @@
-﻿using GraphQlRethikDbTemplate.Database;
-using GraphQlRethikDbTemplate.Schema.Output;
-using GraphQlRethikDbTemplate.Schema.Types;
+﻿using GGraphQlRethinkDbTemplateDatabase;
+using GraphQlRethinkDbTemplate.Schema.Output;
+using GraphQlRethinkDbTemplate.Schema.Types;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
 
-namespace GraphQlRethikDbTemplate.Schema
+namespace GraphQlRethinkDbTemplate.Schema
 {
     [ImplementViewer(OperationType.Mutation)]
     public class Mutation

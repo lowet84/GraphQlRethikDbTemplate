@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GraphQlRethikDbTemplate.Attributes
+namespace GraphQlRethinkDbTemplate.Attributes
 {
     public class UseDeafultDbReadAttribute : Attribute
     {

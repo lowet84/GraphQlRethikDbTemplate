@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
-using GraphQlRethikDbTemplate.Schema.Types;
+using GraphQlRethinkDbTemplate.Schema.Types;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
 
-namespace GraphQlRethikDbTemplate.Schema
+namespace GraphQlRethinkDbTemplate.Schema
 {
     [ImplementViewer(OperationType.Query)]
     public class Query

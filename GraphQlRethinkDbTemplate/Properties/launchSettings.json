@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "GraphQlRethikDbTemplate": {
+    "GraphQlRethinkDbTemplate": {
       "commandName": "Project",
       "environmentVariables": {
         "DATABASE": "localhost",

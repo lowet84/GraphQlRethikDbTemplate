@@ -3,7 +3,7 @@ using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
 using Newtonsoft.Json;
 
-namespace GraphQlRethikDbTemplate.Schema.Types
+namespace GraphQlRethinkDbTemplate.Schema.Types
 {
     public abstract class TypeBase<T> : INode
     {

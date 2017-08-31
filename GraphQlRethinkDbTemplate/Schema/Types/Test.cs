@@ -1,7 +1,7 @@
-﻿using GraphQlRethikDbTemplate.Attributes;
+﻿using GGraphQlRethinkDbTemplateAttributes;
 using GraphQL.Conventions;
 
-namespace GraphQlRethikDbTemplate.Schema.Types
+namespace GraphQlRethinkDbTemplate.Schema.Types
 {
     [UseDeafultDbRead, Table(nameof(Test)), Description("A test class"),]
     public class Test : TypeBase<Test>

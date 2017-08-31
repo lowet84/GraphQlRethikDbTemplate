@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using GraphQL.Conventions.Relay;
 
-namespace GraphQlRethikDbTemplate.Schema.Output
+namespace GraphQlRethinkDbTemplate.Schema.Output
 {
     [Description("Default result")]
     public class DefaultResult<T> : IRelayMutationOutputObject

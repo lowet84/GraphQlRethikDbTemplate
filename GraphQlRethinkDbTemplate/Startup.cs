@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using GraphQlRethikDbTemplate.Database;
-using GraphQlRethikDbTemplate.Schema;
+using GraphQlRethinkDbTemplate.Database;
+using GraphQlRethinkDbTemplate.Schema;
 using GraphQL.Conventions.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace GraphQlRethikDbTemplate
+namespace GraphQlRethinkDbTemplate
 {
     public class Startup
     {
