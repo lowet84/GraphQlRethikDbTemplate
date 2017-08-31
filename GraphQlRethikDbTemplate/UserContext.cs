@@ -21,9 +21,6 @@ namespace GraphQlRethikDbTemplate
                 Document = GetDocument(body);
             }
         }
-        //private readonly IBookRepository _bookRepository = new BookRepository();
-
-        //private readonly IAuthorRepository _authorRepository = new AuthorRepository();
 
         public T Get<T>(Id id) where T : class
         {
@@ -39,19 +36,6 @@ namespace GraphQlRethikDbTemplate
             }
             throw new ArgumentException($"Unable to derive type from identifier '{id}'");
         }
-
-        //public IEnumerable<INode> Search(string searchString)
-        //{
-        //    //foreach (var dto in _bookRepository.SearchForBooksByTitle(searchString))
-        //    //{
-        //    //    yield return new Book(dto);
-        //    //}
-        //    //foreach (var dto in _authorRepository.SearchForAuthorsByLastName(searchString))
-        //    //{
-        //    //    yield return new Author(dto);
-        //    //}
-        //    throw new NotImplementedException();
-        //}
 
         private GraphQLDocument GetDocument(string body)
         {
