@@ -5,6 +5,7 @@ using GraphQlRethinkDbTemplate.Attributes;
 using GraphQL.Conventions;
 using GraphQLParser.AST;
 using Newtonsoft.Json;
+using RethinkDb.Driver.Ast;
 using RethinkDb.Driver.Model;
 
 namespace GraphQlRethinkDbTemplate.Database
@@ -24,11 +25,26 @@ namespace GraphQlRethinkDbTemplate.Database
             return item;
         }
 
-        public T ReadByIdDefault<T>(Id id, GraphQLDocument document) where T : class
+        public T ReadByIdDefault<T>(Id id, GraphQLDocument document, UserContext.ReadType readType) where T : class
         {
             var name = typeof(T).GetCustomAttribute<TableAttribute>().TableName;
             var table = R.Db(DatabaseName).Table(name);
 
+            switch (readType)
+            {
+                case UserContext.ReadType.Normal:
+                    return GetWithDocument<T>(document, table, id);
+                case UserContext.ReadType.Deep:
+                    throw new NotImplementedException();
+                case UserContext.ReadType.Shallow:
+                    return GetShallow<T>(table, id);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(readType), readType, null);
+            }
+        }
+
+        private T GetWithDocument<T>(GraphQLDocument document, Table table, Id id) where T : class
+        {
             var operation =
                 document.Definitions.First(d =>
                     d.Kind == ASTNodeKind.OperationDefinition) as GraphQLOperationDefinition;
@@ -37,8 +53,22 @@ namespace GraphQlRethinkDbTemplate.Database
             try
             {
                 var ret = table.Get(id.ToString())
-                        .Pluck(hashMap)
-                        .RunResult<T>(_connection);
+                    .Pluck(hashMap)
+                    .RunResult<T>(_connection);
+                return ret;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private T GetShallow<T>(Table table, Id id) where T : class
+        {
+            try
+            {
+                var ret = table.Get(id.ToString())
+                    .RunResult<T>(_connection);
                 return ret;
             }
             catch (Exception)

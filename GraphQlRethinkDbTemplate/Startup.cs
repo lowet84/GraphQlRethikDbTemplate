@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using GraphQlRethinkDbTemplate.Database;
 using GraphQlRethinkDbTemplate.Schema;
 using GraphQL.Conventions.Web;
 using Microsoft.AspNetCore.Builder;
@@ -24,12 +23,8 @@ namespace GraphQlRethinkDbTemplate
         {
             loggerFactory.AddConsole();
 
-            var dependencyInjector = new DependencyInjector();
-            dependencyInjector.Register<IDbContext>(DbContext.Instance);
-
             _requestHandler = RequestHandler
                 .New()
-                .WithDependencyInjector(dependencyInjector)
                 .WithQueryAndMutation<Schema.Query, Mutation>()
                 .Generate();
 

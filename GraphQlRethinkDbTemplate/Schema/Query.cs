@@ -14,5 +14,12 @@ namespace GraphQlRethinkDbTemplate.Schema
             var data = context.Get<Test>(id);
             return Task.FromResult(data);
         }
+
+        [Description("Get child by id")]
+        public Task<OtherTableChild> Child(UserContext context, Id id)
+        {
+            var data = context.Get<OtherTableChild>(id);
+            return Task.FromResult(data);
+        }
     }
 }

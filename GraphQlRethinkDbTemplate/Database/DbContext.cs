@@ -5,7 +5,7 @@ using RethinkDb.Driver.Net;
 
 namespace GraphQlRethinkDbTemplate.Database
 {
-    public partial class DbContext : IDbContext
+    public partial class DbContext
     {
         private static DbContext _instance;
         public static DbContext Instance => _instance ?? (_instance = new DbContext());

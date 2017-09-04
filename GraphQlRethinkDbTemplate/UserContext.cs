@@ -12,17 +12,25 @@ namespace GraphQlRethinkDbTemplate
 {
     public class UserContext : IUserContext, IDataLoaderContextProvider
     {
+        public enum ReadType
+        {
+            Normal,
+            Deep,
+            Shallow
+        }
+
         public GraphQLDocument Document { get; }
 
         public UserContext(string body)
         {
             if (!string.IsNullOrEmpty(body))
             {
-                Document = GetDocument(body);
+                var query = JObject.Parse(body).GetValue("query").ToString();
+                Document = GetDocument(query);
             }
         }
 
-        public T Get<T>(Id id) where T : class
+        public T Get<T>(Id id, ReadType readType = ReadType.Normal) where T : class
         {
             if (!id.IsIdentifierForType<T>())
             {
@@ -31,15 +39,21 @@ namespace GraphQlRethinkDbTemplate
 
             if (typeof(T).UsesDeafultDbRead())
             {
-                var data = DbContext.Instance.ReadByIdDefault<T>(id, Document);
+                var data = DbContext.Instance.ReadByIdDefault<T>(id, Document, readType);
                 return data;
             }
             throw new ArgumentException($"Unable to derive type from identifier '{id}'");
         }
 
-        private GraphQLDocument GetDocument(string body)
+        public T AddDefault<T>(T newItem)
         {
-            var query = JObject.Parse(body).GetValue("query").ToString();
+            return DbContext.Instance.AddDefault(newItem);
+        }
+
+
+
+        public static GraphQLDocument GetDocument(string query)
+        {
             var lexer = new Lexer();
             var parser = new Parser(lexer);
             var source = new Source(query);

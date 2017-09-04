@@ -2,7 +2,7 @@
 
 namespace GraphQlRethinkDbTemplate.Attributes
 {
-    public class UseDeafultDbReadAttribute : Attribute
+    public class UseDefaultDbReadAttribute : Attribute
     {
     }
 }
