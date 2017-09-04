@@ -24,7 +24,15 @@ namespace GraphQlRethinkDbTemplate.Schema.Types.Converters
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            return null;
+            try
+            {
+                var ret = serializer.Deserialize(reader, objectType);
+                return ret;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public override bool CanConvert(Type objectType)
