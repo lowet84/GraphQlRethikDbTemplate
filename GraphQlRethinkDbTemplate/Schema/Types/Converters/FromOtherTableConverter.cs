@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GraphQL.Conventions;
 using Newtonsoft.Json;
 
 namespace GraphQlRethinkDbTemplate.Schema.Types.Converters
@@ -24,8 +25,21 @@ namespace GraphQlRethinkDbTemplate.Schema.Types.Converters
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
+            var temp = new List<string>();
+            while (true)
+            {
+                temp.Add(reader.ReadAsString());
+            }
             try
             {
+                var json = reader.ReadAsString();
+                if (!json.StartsWith("{"))
+                {
+                    var id = new Id(json);
+                    if (id.IsIdentifierForType(objectType))
+                        return Utils.CreateDummyObject(objectType, id);
+                    return null;
+                }
                 var ret = serializer.Deserialize(reader, objectType);
                 return ret;
             }

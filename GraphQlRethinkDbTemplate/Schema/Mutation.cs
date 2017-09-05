@@ -30,7 +30,8 @@ namespace GraphQlRethinkDbTemplate.Schema
             //var query = $"query{{child(id:\"{childId}\"){{id}}}}";
             //var document = UserContext.GetDocument(query);
             var child = Utils.CreateDummyObject<OtherTableChild>(childId); //context.Get<OtherTableChild>(childId, document);
-            var newTest = new Test(oldTest.Text, oldTest.OtherTableChildren.AddOrInitializeArray(child));
+            var children = oldTest.OtherTableChildren.AddOrInitializeArray(child);
+            var newTest = new Test(oldTest.Text, children);
             var ret = context.AddDefault(newTest);
             return new DefaultResult<Test>(ret);
         }

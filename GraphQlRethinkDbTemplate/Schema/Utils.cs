@@ -17,26 +17,32 @@ namespace GraphQlRethinkDbTemplate.Schema
             return attributes.Any(d => d is UseDefaultDbReadAttribute);
         }
 
-        public static T CreateDummyObject<T>(Id id) where T : class
+        public static object CreateDummyObject(Type type, Id id)
         {
             var flags = BindingFlags.Instance
-            | BindingFlags.GetProperty
-            | BindingFlags.SetProperty
-            | BindingFlags.GetField
-            | BindingFlags.SetField
-            | BindingFlags.NonPublic;
+                        | BindingFlags.GetProperty
+                        | BindingFlags.SetProperty
+                        | BindingFlags.GetField
+                        | BindingFlags.SetField
+                        | BindingFlags.NonPublic;
 
-            var item = FormatterServices.GetUninitializedObject(typeof(T));
+            var item = FormatterServices.GetUninitializedObject(type);
             var fields = item.GetType().BaseType.BaseType.GetFields(flags);
             var idField = fields.First(d => d.Name.StartsWith("<Id>"));
-            if (id.IsIdentifierForType<T>())
+            if (id.IsIdentifierForType(type))
             {
                 idField.SetValue(item, id);
             }
             else
             {
-                throw new ArgumentException($"Id is not identifyer for type {nameof(T)}");
+                throw new ArgumentException($"Id is not identifyer for type {type}");
             }
+            return item;
+        }
+
+        public static T CreateDummyObject<T>(Id id) where T : class
+        {
+            var item = CreateDummyObject(typeof(T), id);
             return item as T;
         }
 

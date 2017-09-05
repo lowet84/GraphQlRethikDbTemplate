@@ -8,6 +8,7 @@ using GraphQL.Conventions;
 using GraphQLParser.AST;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RethinkDb.Driver.Ast;
 using RethinkDb.Driver.Model;
 
@@ -56,8 +57,8 @@ namespace GraphQlRethinkDbTemplate.Database
             var hashMap = GetHashMap(selectionSet, typeof(T), importJob);
             try
             {
-                var result = GetFromDb(table, id, hashMap);
-                var ret = JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(result));
+                var result = GetFromDb(table, id, hashMap, importJob);
+                var ret = JsonConvert.DeserializeObject<T>(result.ToString());
                 return ret;
             }
             catch (Exception)
@@ -66,17 +67,21 @@ namespace GraphQlRethinkDbTemplate.Database
             }
         }
 
-        private dynamic GetFromDb(Table table, Id id, MapObject hashMap)
+        private JObject GetFromDb(Table table, Id id, MapObject hashMap, ImportJob importJob)
         {
             var result = table.Get(id.ToString())
                 .Pluck(hashMap)
-                .Run(_connection);
+                .Run(_connection) as JObject;
+            var properties = result.Properties();
+            
             return result;
         }
 
-        private dynamic GetFromDb(Table table, IEnumerable<Id> ids, MapObject hashMap)
+        private List<JObject> GetFromDb(Table table, IEnumerable<Id> ids, MapObject hashMap)
         {
-            return null;
+            var idList = ids.ToList();
+            var result = table.GetAll(idList).Pluck(hashMap).Run(_connection);
+            return result;
         }
 
         private T GetShallow<T>(Table table, Id id) where T : class
@@ -163,7 +168,7 @@ namespace GraphQlRethinkDbTemplate.Database
                 }
             }
 
-            private List<ImportJobItem> MapObjects { get; }
+            public List<ImportJobItem> MapObjects { get; }
         }
 
         private class ImportJobItem
