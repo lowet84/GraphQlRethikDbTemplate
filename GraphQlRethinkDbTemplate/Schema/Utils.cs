@@ -5,12 +5,22 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using GraphQlRethinkDbTemplate.Attributes;
 using GraphQL.Conventions;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+using RethinkDb.Driver.Ast;
 
 namespace GraphQlRethinkDbTemplate.Schema
 {
     public static class Utils
     {
+        const BindingFlags Flags = BindingFlags.Instance
+                                   | BindingFlags.GetProperty
+                                   | BindingFlags.SetProperty
+                                   | BindingFlags.GetField
+                                   | BindingFlags.SetField
+                                   | BindingFlags.NonPublic;
+
         public static bool UsesDeafultDbRead(this Type type)
         {
             var attributes = type.GetTypeInfo().GetCustomAttributes();
@@ -20,15 +30,10 @@ namespace GraphQlRethinkDbTemplate.Schema
 
         public static object CreateDummyObject(Type type, Id id)
         {
-            var flags = BindingFlags.Instance
-                        | BindingFlags.GetProperty
-                        | BindingFlags.SetProperty
-                        | BindingFlags.GetField
-                        | BindingFlags.SetField
-                        | BindingFlags.NonPublic;
+
 
             var item = FormatterServices.GetUninitializedObject(type);
-            var fields = item.GetType().BaseType.BaseType.GetFields(flags);
+            var fields = item.GetType().BaseType.BaseType.GetFields(Flags);
             var idField = fields.First(d => d.Name.StartsWith("<Id>"));
             if (id.IsIdentifierForType(type))
             {
@@ -57,7 +62,33 @@ namespace GraphQlRethinkDbTemplate.Schema
         public static T DeserializeJObject<T>(JObject jObject)
         {
             var type = typeof(T);
+            var item = FormatterServices.GetUninitializedObject(type);
+            var fields = GetFields(type);
+            var properties = type.GetProperties().Select(d =>
+                new
+                {
+                    Info = d,
+                    Name = d.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName ?? d.Name
+                });
+            foreach (var property in jObject.Properties())
+            {
+                var typeProperty = properties.First(d => d.Name == property.Name);
+                var field = fields.First(d => d.Name.StartsWith($"<{typeProperty.Info.Name}>"));
+            }
             return default(T);
+        }
+
+        private static FieldInfo[] GetFields(Type type)
+        {
+            var ret = new List<FieldInfo>();
+
+            ret.AddRange(type.GetFields(Flags));
+            if (type.BaseType != null)
+            {
+                ret.AddRange(GetFields(type.BaseType));
+            }
+
+            return ret.ToArray();
         }
     }
 }

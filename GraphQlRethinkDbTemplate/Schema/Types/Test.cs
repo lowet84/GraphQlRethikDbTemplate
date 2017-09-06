@@ -19,7 +19,7 @@ namespace GraphQlRethinkDbTemplate.Schema.Types
         public string Text { get; }
 
         [Description("Items in another table")]
-        [JsonConverter(typeof(FromOtherTableConverter))]
+        [JsonConverter(typeof(OtherTableConverter))]
         public OtherTableChild[] OtherTableChildren { get; }
     }
 }

@@ -170,7 +170,7 @@ namespace GraphQlRethinkDbTemplate.Database
                 return new {Property = property, HashMap = d.Value as MapObject};
             });
             var importProperties = properties.Where(d =>
-                    d?.Property?.GetCustomAttribute<JsonConverterAttribute>()?.ConverterType == typeof(FromOtherTableConverter))
+                    d?.Property?.GetCustomAttribute<JsonConverterAttribute>()?.ConverterType == typeof(OtherTableConverter))
                 .ToList();
             ret.ImportItems = importProperties
                 .Select(d => GetImportTree(d.Property.PropertyType, d.HashMap, d.Property.Name)).ToList();

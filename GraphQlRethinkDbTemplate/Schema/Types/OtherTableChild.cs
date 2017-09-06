@@ -18,7 +18,7 @@ namespace GraphQlRethinkDbTemplate.Schema.Types
         public string ChildText { get; }
 
         [Description("Items in another table2")]
-        [JsonConverter(typeof(FromOtherTableConverter))]
+        [JsonConverter(typeof(OtherTableConverter))]
         public OtherTableChild2[] OtherTableChildren2 { get; }
     }
 }
