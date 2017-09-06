@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using GraphQlRethinkDbTemplate.Attributes;
+using GraphQlRethinkDbTemplate.Schema;
 using GraphQlRethinkDbTemplate.Schema.Types.Converters;
 using GraphQL.Conventions;
 using GraphQLParser.AST;
@@ -18,7 +19,7 @@ namespace GraphQlRethinkDbTemplate.Database
     {
         public T AddDefault<T>(T item)
         {
-            var table = R.Db(DatabaseName).Table(typeof(T).Name);
+            var table = GetTable(typeof(T));
 
             var result = table.Insert(item).RunResult(_connection);
             if (result.Errors > 0)
@@ -31,34 +32,49 @@ namespace GraphQlRethinkDbTemplate.Database
 
         public T ReadByIdDefault<T>(Id id, GraphQLDocument document, UserContext.ReadType readType) where T : class
         {
-            var name = typeof(T).GetCustomAttribute<TableAttribute>().TableName;
-            var table = R.Db(DatabaseName).Table(name);
+            var selectionSet = GetSelectionSet(document);
 
             switch (readType)
             {
                 case UserContext.ReadType.Normal:
-                    return GetWithDocument<T>(document, table, id);
+                    return GetWithDocument<T>(selectionSet, id);
                 case UserContext.ReadType.Deep:
                     throw new NotImplementedException();
                 case UserContext.ReadType.Shallow:
-                    return GetShallow<T>(table, id);
+                    return GetShallow<T>(id);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(readType), readType, null);
             }
         }
 
-        private T GetWithDocument<T>(GraphQLDocument document, Table table, Id id) where T : class
+        private static string GetTableName(Type unsafeType)
+        {
+            var name = GetTypeIfArray(unsafeType).GetCustomAttribute<TableAttribute>().TableName;
+            return name;
+        }
+
+        private static Table GetTable(Type type)
+        {
+            return R.Db(DatabaseName).Table(GetTableName(type));
+        }
+
+        private static GraphQLSelectionSet GetSelectionSet(GraphQLDocument document)
         {
             var operation =
                 document.Definitions.First(d =>
                     d.Kind == ASTNodeKind.OperationDefinition) as GraphQLOperationDefinition;
-            var selectionSet = (operation.SelectionSet.Selections.Single() as GraphQLFieldSelection).SelectionSet;
-            var importJob = new ImportJob();
-            var hashMap = GetHashMap(selectionSet, typeof(T), importJob);
+            var selectionSet = (operation?.SelectionSet?.Selections?.SingleOrDefault() as GraphQLFieldSelection)?.SelectionSet;
+            return selectionSet;
+        }
+
+        private T GetWithDocument<T>(GraphQLSelectionSet selectionSet, Id id) where T : class
+        {
+            var type = typeof(T);
+            var hashMap = GetHashMap(selectionSet, type);
             try
             {
-                var result = GetFromDb(table, id, hashMap, importJob);
-                var ret = JsonConvert.DeserializeObject<T>(result.ToString());
+                var result = GetFromDb<T>(id, hashMap);
+                var ret = Utils.DeserializeJObject<T>(result);
                 return ret;
             }
             catch (Exception)
@@ -67,44 +83,54 @@ namespace GraphQlRethinkDbTemplate.Database
             }
         }
 
-        private JObject GetFromDb(Table table, Id id, MapObject hashMap, ImportJob importJob)
+        private JObject GetFromDb<T>(Id id, MapObject hashMap)
         {
-            var result = table.Get(id.ToString())
-                .Pluck(hashMap)
-                .Run(_connection) as JObject;
-            var properties = result.Properties();
-            
+            var importTree = GetImportTree(typeof(T), hashMap, null);
+            var table = GetTable(typeof(T));
+            ReqlExpr get = table
+                .Get(id.ToString());
+            get = Merge(get, importTree);
+            get = get.Pluck(hashMap);
+            var result = get.Run(_connection) as JObject;
             return result;
         }
 
-        private List<JObject> GetFromDb(Table table, IEnumerable<Id> ids, MapObject hashMap)
+        private T GetShallow<T>(Id id) where T : class
         {
-            var idList = ids.ToList();
-            var result = table.GetAll(idList).Pluck(hashMap).Run(_connection);
-            return result;
-        }
-
-        private T GetShallow<T>(Table table, Id id) where T : class
-        {
+            var table = GetTable(typeof(T));
             try
             {
-                var ret = table.Get(id.ToString())
-                    .RunResult<T>(_connection);
-                return ret;
+                JObject result = table.Get(id.ToString())
+                    .Run(_connection);
+                return Utils.DeserializeJObject<T>(result);
             }
             catch (Exception)
             {
                 return null;
             }
+        }
+
+        private ReqlExpr Merge(ReqlExpr expr, ImportTreeItem importTree)
+        {
+            var ret = expr;
+
+            foreach (var importItem in importTree.ImportItems)
+            {
+                ret = ret.Merge(item => R.HashMap(importItem.PropertyName,
+                    importItem.Table.GetAll(R.Args(item.G(importItem.PropertyName)))
+                    .Map(subItem => Merge(subItem,importItem))
+                    .CoerceTo("ARRAY")));
+            }
+
+            return ret;
         }
 
         private static MapObject GetHashMap(
-            GraphQLSelectionSet selectionSet, 
-            Type type,
-            ImportJob importJob)
+            GraphQLSelectionSet selectionSet,
+            Type unsafeType)
         {
             var mapObject = new MapObject();
-
+            var type = GetTypeIfArray(unsafeType);
             foreach (var selection in selectionSet.Selections)
             {
                 if (!(selection is GraphQLFieldSelection fieldSelection)) continue;
@@ -117,27 +143,8 @@ namespace GraphQlRethinkDbTemplate.Database
                 else
                 {
                     var property = type.GetProperty(name);
-                    var converter = property.GetCustomAttribute<JsonConverterAttribute>();
-                    if (converter != null && converter.ConverterType == typeof(FromOtherTableConverter))
-                    {
-                        mapObject = mapObject.With(name, true);
-
-                        var propertyType = property.PropertyType;
-                        if (propertyType.IsArray) propertyType = propertyType.GetElementType();
-                        var tableName = propertyType.GetCustomAttribute<TableAttribute>().TableName;
-
-                        var newType = property.PropertyType;
-
-                        if (newType.IsArray) newType = newType.GetElementType();
-                        var importMapObject = GetHashMap(fieldSelection.SelectionSet, newType, importJob);
-                        importJob.AddMapObject(tableName, importMapObject, property.Name);
-                    }
-                    else
-                    {
-                        var newType = property.PropertyType;
-                        mapObject = mapObject.With(name, GetHashMap(fieldSelection.SelectionSet, newType, importJob));
-                    }
-                    
+                    var newType = property.PropertyType;
+                    mapObject = mapObject.With(name, GetHashMap(fieldSelection.SelectionSet, newType));
                 }
             }
 
@@ -153,29 +160,33 @@ namespace GraphQlRethinkDbTemplate.Database
             return ret;
         }
 
-        private class ImportJob
+        private ImportTreeItem GetImportTree(Type unsafeType, MapObject hashMap, string rootProperty)
         {
-            public ImportJob()
+            var type = GetTypeIfArray(unsafeType);
+            var ret = new ImportTreeItem { Table = GetTable(type), PropertyName = rootProperty};
+            var properties = hashMap.Select(d =>
             {
-                MapObjects = new List<ImportJobItem>();
-            }
-
-            public void AddMapObject(string tableName, MapObject mapObject, string propertyName)
-            {
-                if (!MapObjects.Any(d => d.TableName == tableName && d.PropertyName == propertyName))
-                {
-                    MapObjects.Add(new ImportJobItem{MapObject = mapObject, TableName = tableName, PropertyName = propertyName});
-                }
-            }
-
-            public List<ImportJobItem> MapObjects { get; }
+                var property = type.GetProperty(d.Key.ToString());
+                return new {Property = property, HashMap = d.Value as MapObject};
+            });
+            var importProperties = properties.Where(d =>
+                    d?.Property?.GetCustomAttribute<JsonConverterAttribute>()?.ConverterType == typeof(FromOtherTableConverter))
+                .ToList();
+            ret.ImportItems = importProperties
+                .Select(d => GetImportTree(d.Property.PropertyType, d.HashMap, d.Property.Name)).ToList();
+            return ret;
         }
 
-        private class ImportJobItem
+        private class ImportTreeItem
         {
-            public string TableName { get; set; }
+            public Table Table { get; set; }
             public string PropertyName { get; set; }
-            public MapObject MapObject { get; set; }
+            public List<ImportTreeItem> ImportItems { get; set; }
+        }
+
+        private static Type GetTypeIfArray(Type type)
+        {
+            return type.IsArray ? type.GetElementType() : type;
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using GraphQlRethinkDbTemplate.Attributes;
 using GraphQL.Conventions;
+using Newtonsoft.Json.Linq;
 
 namespace GraphQlRethinkDbTemplate.Schema
 {
@@ -46,11 +47,17 @@ namespace GraphQlRethinkDbTemplate.Schema
             return item as T;
         }
 
-        public static T[] AddOrInitializeArray<T>(this T[] array, params T[] items)
+        public static T[] AddOrInitializeArray<T>(T[] array, params T[] items)
         {
             var list = new List<T>(array ?? new T[0]);
             list.AddRange(items);
             return list.ToArray();
+        }
+
+        public static T DeserializeJObject<T>(JObject jObject)
+        {
+            var type = typeof(T);
+            return default(T);
         }
     }
 }

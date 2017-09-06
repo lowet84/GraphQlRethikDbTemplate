@@ -21,5 +21,11 @@ namespace GraphQlRethinkDbTemplate.Schema
             var data = context.Get<OtherTableChild>(id);
             return Task.FromResult(data);
         }
+
+        public Task<Test> Shallow(UserContext context, Id id)
+        {
+            var data = context.Get<Test>(id, UserContext.ReadType.Shallow);
+            return Task.FromResult(data);
+        }
     }
 }
