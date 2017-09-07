@@ -1,5 +1,4 @@
 ﻿using GraphQlRethinkDbTemplate.Attributes;
-using GraphQlRethinkDbTemplate.Schema.Types.Converters;
 using GraphQL.Conventions;
 using Newtonsoft.Json;
 
@@ -18,7 +17,6 @@ namespace GraphQlRethinkDbTemplate.Schema.Types
         public string ChildText { get; }
 
         [Description("Items in another table2")]
-        [JsonConverter(typeof(OtherTableConverter))]
         public OtherTableChild2[] OtherTableChildren2 { get; }
     }
 }

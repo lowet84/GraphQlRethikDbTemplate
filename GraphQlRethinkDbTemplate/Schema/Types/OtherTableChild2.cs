@@ -1,5 +1,4 @@
 ﻿using GraphQlRethinkDbTemplate.Attributes;
-using GraphQlRethinkDbTemplate.Schema.Types.Converters;
 using GraphQL.Conventions;
 using Newtonsoft.Json;
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Specialized;
 using GraphQlRethinkDbTemplate.Schema.Types.Converters;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
@@ -21,8 +20,8 @@ namespace GraphQlRethinkDbTemplate.Schema.Types
             Id = id;
         }
 
-        [JsonProperty(PropertyName = "id")]
         [JsonConverter(typeof(IdConverter))]
+        [JsonProperty(PropertyName = "id")]
         public Id Id { get; }
     }
 }

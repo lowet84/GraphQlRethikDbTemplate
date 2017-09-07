@@ -4,10 +4,9 @@ using System.Linq;
 using System.Reflection;
 using GraphQlRethinkDbTemplate.Attributes;
 using GraphQlRethinkDbTemplate.Schema;
-using GraphQlRethinkDbTemplate.Schema.Types.Converters;
+using GraphQlRethinkDbTemplate.Schema.Types;
 using GraphQL.Conventions;
 using GraphQLParser.AST;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RethinkDb.Driver.Ast;
@@ -74,8 +73,8 @@ namespace GraphQlRethinkDbTemplate.Database
             try
             {
                 var result = GetFromDb<T>(id, hashMap);
-                var ret = Utils.DeserializeJObject<T>(result);
-                return ret;
+                var ret = Utils.DeserializeObject(typeof(T),result);
+                return ret as T;
             }
             catch (Exception)
             {
@@ -100,9 +99,10 @@ namespace GraphQlRethinkDbTemplate.Database
             var table = GetTable(typeof(T));
             try
             {
-                JObject result = table.Get(id.ToString())
-                    .Run(_connection);
-                return Utils.DeserializeJObject<T>(result);
+                var result = table.Get(id.ToString())
+                    .Run(_connection) as JObject;
+                var ret = Utils.DeserializeObject(typeof(T), result);
+                return ret as T;
             }
             catch (Exception)
             {
@@ -118,7 +118,7 @@ namespace GraphQlRethinkDbTemplate.Database
             {
                 ret = ret.Merge(item => R.HashMap(importItem.PropertyName,
                     importItem.Table.GetAll(R.Args(item.G(importItem.PropertyName)))
-                    .Map(subItem => Merge(subItem,importItem))
+                    .Map(subItem => Merge(subItem, importItem))
                     .CoerceTo("ARRAY")));
             }
 
@@ -163,14 +163,13 @@ namespace GraphQlRethinkDbTemplate.Database
         private ImportTreeItem GetImportTree(Type unsafeType, MapObject hashMap, string rootProperty)
         {
             var type = GetTypeIfArray(unsafeType);
-            var ret = new ImportTreeItem { Table = GetTable(type), PropertyName = rootProperty};
+            var ret = new ImportTreeItem { Table = GetTable(type), PropertyName = rootProperty };
             var properties = hashMap.Select(d =>
             {
                 var property = type.GetProperty(d.Key.ToString());
-                return new {Property = property, HashMap = d.Value as MapObject};
+                return new { Property = property, HashMap = d.Value as MapObject };
             });
-            var importProperties = properties.Where(d =>
-                    d?.Property?.GetCustomAttribute<JsonConverterAttribute>()?.ConverterType == typeof(OtherTableConverter))
+            var importProperties = properties.Where(d => d.Property?.PropertyType?.IsTypeBase() == true)
                 .ToList();
             ret.ImportItems = importProperties
                 .Select(d => GetImportTree(d.Property.PropertyType, d.HashMap, d.Property.Name)).ToList();
