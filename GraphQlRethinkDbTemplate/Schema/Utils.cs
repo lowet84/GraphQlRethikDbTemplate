@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Runtime.Serialization;
 using GraphQlRethinkDbTemplate.Attributes;
 using GraphQlRethinkDbTemplate.Schema.Types;
@@ -10,19 +9,18 @@ using GraphQL;
 using GraphQL.Conventions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
-using RethinkDb.Driver.Ast;
 
 namespace GraphQlRethinkDbTemplate.Schema
 {
     public static class Utils
     {
-        const BindingFlags Flags = BindingFlags.Instance
-                                   | BindingFlags.GetProperty
-                                   | BindingFlags.SetProperty
-                                   | BindingFlags.GetField
-                                   | BindingFlags.SetField
-                                   | BindingFlags.NonPublic;
+        private const BindingFlags Flags =
+            BindingFlags.Instance
+            | BindingFlags.GetProperty
+            | BindingFlags.SetProperty
+            | BindingFlags.GetField
+            | BindingFlags.SetField
+            | BindingFlags.NonPublic;
 
         public static bool UsesDeafultDbRead(this Type type)
         {
@@ -72,41 +70,54 @@ namespace GraphQlRethinkDbTemplate.Schema
             switch (jToken.Type)
             {
                 case JTokenType.Object:
-                    var ret = CreateEmptyObject(type);
-                    var properties = type.GetProperties();
-                    foreach (var property in properties)
-                    {
-                        var jPropertyName = property.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName ?? property.Name;
-                        var value = jToken[jPropertyName];
-                        if (value == null) continue;
-
-                        var deserializedValue = DeserializeObject(property.PropertyType, value);
-                        ForceSetValue(ret, property.Name, deserializedValue);
-                    }
-                    return ret;
+                    return HandleObject(type, jToken);
                 case JTokenType.Array:
-                    var arrayType = type.GetElementType();
-                    var arrayValues = jToken.ToList();
-                    var arrayRetTemp = arrayValues.Select(d => DeserializeObject(arrayType, d)).ToArray();
-                    var arrayRet = Array.CreateInstance(arrayType, arrayRetTemp.Length);
-                    for (int index = 0; index < arrayRetTemp.Length; index++)
-                    {
-                        arrayRet.SetValue(arrayRetTemp[index],index);
-                    }
-                    return arrayRet;
+                    return HandleArray(type, jToken);
                 case JTokenType.String:
-                    var strVal = jToken.GetValue().ToString();
-                    if(type == typeof(Id))
-                        return new Id(strVal);
-                    if (!type.IsTypeBase()) return strVal;
-
-                    var dummyRet = CreateDummyObject(type, new Id(strVal));
-                    return dummyRet;
+                    return HandleString(type, jToken);
             }
-            throw new NotImplementedException();
+            throw new NotImplementedException($"Type: {jToken.Type.ToString()} is not handled yet");
         }
 
+        private static object HandleString(Type type, JToken jToken)
+        {
+            var strVal = jToken.GetValue().ToString();
+            if (type == typeof(Id))
+                return new Id(strVal);
+            if (!type.IsTypeBase()) return strVal;
 
+            var dummyRet = CreateDummyObject(type, new Id(strVal));
+            return dummyRet;
+        }
+
+        private static object HandleArray(Type type, JToken jToken)
+        {
+            var arrayType = type.GetElementType();
+            var arrayValues = jToken.ToList();
+            var arrayRetTemp = arrayValues.Select(d => DeserializeObject(arrayType, d)).ToArray();
+            var arrayRet = Array.CreateInstance(arrayType, arrayRetTemp.Length);
+            for (var index = 0; index < arrayRetTemp.Length; index++)
+            {
+                arrayRet.SetValue(arrayRetTemp[index], index);
+            }
+            return arrayRet;
+        }
+
+        private static object HandleObject(Type type, JToken jToken)
+        {
+            var ret = CreateEmptyObject(type);
+            var properties = type.GetProperties();
+            foreach (var property in properties)
+            {
+                var jPropertyName = property.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName ?? property.Name;
+                var value = jToken[jPropertyName];
+                if (value == null) continue;
+
+                var deserializedValue = DeserializeObject(property.PropertyType, value);
+                ForceSetValue(ret, property.Name, deserializedValue);
+            }
+            return ret;
+        }
 
         public static bool IsTypeBase(this Type type)
         {
@@ -114,7 +125,7 @@ namespace GraphQlRethinkDbTemplate.Schema
                 || typeof(TypeBase).IsAssignableFrom(type.GetElementType());
         }
 
-        private static FieldInfo[] GetFields(Type type)
+        private static IEnumerable<FieldInfo> GetFields(Type type)
         {
             var ret = new List<FieldInfo>(type.GetFields(Flags));
             if (type.BaseType != null)
@@ -123,62 +134,5 @@ namespace GraphQlRethinkDbTemplate.Schema
             }
             return ret.ToArray();
         }
-
-
-
-
-
-
-
-
-
-        //private static object GetValue(PropertyInfo propertyInfo, JToken jToken, string jPropertyName)
-        //{
-        //    var jProperties = jToken.ToDictionary(d => d.Path, d => d);
-        //    if (propertyInfo.PropertyType == typeof(string))
-        //    {
-        //        var value = jProperties[jPropertyName].GetValue();
-        //    }
-        //    //var property = jToken
-
-        //    return null;
-        //}
-
-        //private static JObject Normalize<T>(string json)
-        //{
-        //    var jObject = JObject.Parse(json);
-        //    var properties = typeof(T).GetProperties().Where(d => d.IsTypeBase()).ToList();
-        //    foreach (var property in properties)
-        //    {
-        //        var jPropertyName = property.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName ?? property.Name;
-        //        if (property.PropertyType.IsArray)
-        //        {
-        //            var type = property.PropertyType.GetElementType();
-        //            if (jObject.GetValue(jPropertyName).All(d => d.Type == JTokenType.String))
-        //            {
-        //                var ids = jObject.GetValue(jPropertyName).Select(d => d.ToString()).ToList();
-        //                var dummys = ids.Select(d => CreateDummyObject(type, new Id(d)));
-        //                jObject[jPropertyName] = new JArray(dummys.Select(JObject.FromObject));
-        //            }
-        //        }
-        //        else
-        //        {
-        //            if (jObject.GetValue(jPropertyName).Type != JTokenType.String) continue;
-
-        //            var type = property.PropertyType;
-        //            var dummy = CreateDummyObject(type, new Id(jObject.GetValue(jPropertyName).ToString()));
-        //            var newJObject = JObject.FromObject(dummy);
-        //            jObject[jPropertyName] = newJObject;
-        //        }
-        //    }
-
-        //    return jObject;
-        //}
-
-        //private static void FixIds(object item, string json)
-        //{
-        //    var jObject = JObject.Parse(json);
-        //    var properties = item.GetType().GetProperties().Where(d => d.IsTypeBase()).ToList();
-        //}
     }
 }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using GraphQlRethinkDbTemplate.Attributes;
 using GraphQlRethinkDbTemplate.Schema;
-using GraphQlRethinkDbTemplate.Schema.Types;
 using GraphQL.Conventions;
 using GraphQLParser.AST;
 using Newtonsoft.Json;

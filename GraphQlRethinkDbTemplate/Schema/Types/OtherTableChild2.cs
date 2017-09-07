@@ -1,6 +1,5 @@
 ﻿using GraphQlRethinkDbTemplate.Attributes;
 using GraphQL.Conventions;
-using Newtonsoft.Json;
 
 namespace GraphQlRethinkDbTemplate.Schema.Types
 {

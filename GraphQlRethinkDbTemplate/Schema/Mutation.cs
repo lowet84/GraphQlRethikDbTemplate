@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using GraphQlRethinkDbTemplate.Schema.Output;
+﻿using GraphQlRethinkDbTemplate.Schema.Output;
 using GraphQlRethinkDbTemplate.Schema.Types;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
