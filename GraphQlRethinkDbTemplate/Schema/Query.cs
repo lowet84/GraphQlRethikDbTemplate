@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using GraphQlRethinkDbTemplate.Schema.Model;
 using GraphQlRethinkDbTemplate.Schema.Types;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
@@ -8,23 +9,24 @@ namespace GraphQlRethinkDbTemplate.Schema
     [ImplementViewer(OperationType.Query)]
     public class Query
     {
-        [Description("Get node by id")]
-        public Task<Test> Test(UserContext context, Id id)
+        [Description("Get author by id")]
+        public Task<Author> Author(UserContext context, Id id)
         {
-            var data = context.Get<Test>(id);
+            var data = context.Get<Author>(id);
             return Task.FromResult(data);
         }
 
-        [Description("Get child by id")]
-        public Task<OtherTableChild> Child(UserContext context, Id id)
+        [Description("Get book by id")]
+        public Task<Book> Book(UserContext context, Id id)
         {
-            var data = context.Get<OtherTableChild>(id);
+            var data = context.Get<Book>(id);
             return Task.FromResult(data);
         }
 
-        public Task<Test> Shallow(UserContext context, Id id)
+        [Description("Get a series of books")]
+        public Task<Series> Series(UserContext context, Id id)
         {
-            var data = context.Get<Test>(id, UserContext.ReadType.Shallow);
+            var data = context.Get<Series>(id);
             return Task.FromResult(data);
         }
     }

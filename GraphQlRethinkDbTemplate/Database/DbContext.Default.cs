@@ -6,7 +6,6 @@ using GraphQlRethinkDbTemplate.Attributes;
 using GraphQlRethinkDbTemplate.Schema;
 using GraphQL.Conventions;
 using GraphQLParser.AST;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RethinkDb.Driver.Ast;
 using RethinkDb.Driver.Model;
@@ -20,8 +19,8 @@ namespace GraphQlRethinkDbTemplate.Database
             var type = typeof(T);
             var table = GetTable(type);
             var jObject = JObject.FromObject(item);
-            var json = Utils.SerializeObject(type, jObject);
-            var result = table.Insert(json).RunResult(_connection);
+            var jToken = Utils.ChangeTypeBaseItemsToIds(type, jObject);
+            var result = table.Insert(jToken).RunResult(_connection);
             if (result.Errors > 0)
             {
                 throw new Exception("Something went wrong");
@@ -49,7 +48,7 @@ namespace GraphQlRethinkDbTemplate.Database
 
         private static string GetTableName(Type unsafeType)
         {
-            var name = GetTypeIfArray(unsafeType).GetCustomAttribute<TableAttribute>().TableName;
+            var name = GetTypeIfArray(unsafeType).GetCustomAttribute<TableAttribute>()?.TableName ?? unsafeType.Name;
             return name;
         }
 
@@ -74,7 +73,7 @@ namespace GraphQlRethinkDbTemplate.Database
             try
             {
                 var result = GetFromDb<T>(id, hashMap);
-                var ret = Utils.DeserializeObject(typeof(T),result);
+                var ret = Utils.DeserializeObject(typeof(T), result);
                 return ret as T;
             }
             catch (Exception)
@@ -117,10 +116,27 @@ namespace GraphQlRethinkDbTemplate.Database
 
             foreach (var importItem in importTree.ImportItems)
             {
-                ret = ret.Merge(item => R.HashMap(importItem.PropertyName,
-                    importItem.Table.GetAll(R.Args(item.G(importItem.PropertyName)))
-                    .Map(subItem => Merge(subItem, importItem))
-                    .CoerceTo("ARRAY")));
+                if (importItem.IsArray && importItem.NodeBase)
+                {
+                    ret = ret.Merge(item => R.HashMap(importItem.PropertyName,
+                        importItem.Table.GetAll(R.Args(item.G(importItem.PropertyName)))
+                            .Map(subItem => Merge(subItem, importItem))
+                            .CoerceTo("ARRAY")));
+                }
+                else if (importItem.NodeBase)
+                {
+                    ret = ret.Merge(item => R.HashMap(importItem.PropertyName,
+                        Merge(importItem.Table.Get(item.G(importItem.PropertyName)), importItem)));
+                }
+                else if (importItem.IsArray)
+                {
+                    // Work here, It is still not possible to have an array of poco:s that contains id:s.
+                }
+                else
+                {
+                    ret = ret.Merge(item => R.HashMap(importItem.PropertyName, 
+                        Merge(item.G(importItem.PropertyName), importItem)));
+                }
             }
 
             return ret;
@@ -163,24 +179,40 @@ namespace GraphQlRethinkDbTemplate.Database
         private ImportTreeItem GetImportTree(Type unsafeType, MapObject hashMap, string rootProperty)
         {
             var type = GetTypeIfArray(unsafeType);
-            var ret = new ImportTreeItem { Table = GetTable(type), PropertyName = rootProperty };
+            var ret = new ImportTreeItem
+            {
+                Table = GetTable(type),
+                PropertyName = rootProperty,
+                IsArray = unsafeType.IsArray,
+                NodeBase = type.IsNodeBase()
+            };
             var properties = hashMap.Select(d =>
             {
                 var property = type.GetProperty(d.Key.ToString());
                 return new { Property = property, HashMap = d.Value as MapObject };
-            });
-            var importProperties = properties.Where(d => d.Property?.PropertyType?.IsTypeBase() == true)
-                .ToList();
-            ret.ImportItems = importProperties
+            }).Where(d => d.HashMap != null).ToList();
+            //var importProperties = properties.Where(d => d.Property?.PropertyType?.IsNodeBase() == true)
+            //    .ToList();
+            ret.ImportItems = properties
                 .Select(d => GetImportTree(d.Property.PropertyType, d.HashMap, d.Property.Name)).ToList();
+            ret.Clean();
             return ret;
         }
 
         private class ImportTreeItem
         {
             public Table Table { get; set; }
+            public bool NodeBase { get; set; }
+            public bool HasNodeBase => NodeBase || ImportItems.Any(d => d.HasNodeBase);
             public string PropertyName { get; set; }
+            public bool IsArray { get; set; }
             public List<ImportTreeItem> ImportItems { get; set; }
+
+            public void Clean()
+            {
+                var toRemove = ImportItems.Where(d => !d.HasNodeBase).ToList();
+                toRemove.ForEach(d => ImportItems.Remove(d));
+            }
         }
 
         private static Type GetTypeIfArray(Type type)

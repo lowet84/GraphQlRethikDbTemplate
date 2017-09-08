@@ -1,4 +1,6 @@
-﻿using GraphQlRethinkDbTemplate.Schema.Output;
+﻿using System;
+using GraphQlRethinkDbTemplate.Schema.Model;
+using GraphQlRethinkDbTemplate.Schema.Output;
 using GraphQlRethinkDbTemplate.Schema.Types;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
@@ -9,50 +11,47 @@ namespace GraphQlRethinkDbTemplate.Schema
     [ImplementViewer(OperationType.Mutation)]
     public class Mutation
     {
-        [Description("Add a new test item")]
-        public DefaultResult<Test> AddTest(
-            UserContext context,
-            string title)
+        public DefaultResult<Author> AddAuthor(
+        UserContext context,
+        NonNull<string> firstName,
+        NonNull<string> lastName)
         {
-            var newTest = new Test(title, null);
-            var ret = context.AddDefault(newTest);
-            return new DefaultResult<Test>(ret);
+            var author = new Author(firstName, lastName);
+            var ret = context.AddDefault(author);
+            return new DefaultResult<Author>(ret);
         }
 
-        [Description("Add child to test")]
-        public DefaultResult<Test> AddChildToTest(
+        public DefaultResult<Book> AddBook(
             UserContext context,
-            Id testId,
-            Id childId)
+            NonNull<string> title,
+            NonNull<string> authorId)
         {
-            var oldTest = context.Get<Test>(testId, UserContext.ReadType.Shallow);
-            //var query = $"query{{child(id:\"{childId}\"){{id}}}}";
-            //var document = UserContext.GetDocument(query);
-            var child = Utils.CreateDummyObject<OtherTableChild>(childId); //context.Get<OtherTableChild>(childId, document);
-            var children = Utils.AddOrInitializeArray(oldTest.OtherTableChildren, child);
-            var newTest = new Test(oldTest.Text, children);
-            var ret = context.AddDefault(newTest);
-            return new DefaultResult<Test>(ret);
+            var id = new Id(authorId);
+            var authorDummy = Utils.CreateDummyObject<Author>(id);
+            var book = new Book(title, authorDummy);
+            var ret = context.AddDefault(book);
+            return new DefaultResult<Book>(ret);
         }
 
-        [Description("Add new child")]
-        public DefaultResult<OtherTableChild> AddChild(
+        public DefaultResult<Series> AddSeries(
             UserContext context,
-            string text)
+            NonNull<string> name)
         {
-            var newChild = new OtherTableChild(text, null);
-            var ret = context.AddDefault(newChild);
-            return new DefaultResult<OtherTableChild>(ret);
+            var series = new Series(name, null);
+            var ret = context.AddDefault(series);
+            return new DefaultResult<Series>(ret);
         }
 
-        [Description("Add new child")]
-        public DefaultResult<OtherTableChild2> AddChild2(
+        public DefaultResult<Series> AddBookToSeries(
             UserContext context,
-            string text)
+            NonNull<string> seriesId,
+            NonNull<string> bookId)
         {
-            var newChild = new OtherTableChild2(text);
-            var ret = context.AddDefault(newChild);
-            return new DefaultResult<OtherTableChild2>(ret);
+            var oldSeries = context.Get<Series>(new Id(seriesId), UserContext.ReadType.Shallow);
+            var book = Utils.CreateDummyObject<Book>(new Id(bookId));
+            var newSeries = new Series(oldSeries.Name, Utils.AddOrInitializeArray(oldSeries.Books, book));
+            var ret = context.AddDefault(newSeries);
+            return new DefaultResult<Series>(ret);
         }
     }
 }

@@ -3,9 +3,8 @@ using GraphQL.Conventions;
 
 namespace GraphQlRethinkDbTemplate.Schema.Types
 {
-    [Table(nameof(Chain)), Description("The chain")]
-    [UseDefaultDbRead]
-    public class Chain : TypeBase<Chain>
+    [Description("The chain")]
+    public class Chain : NodeBase<Chain>
     {
         public Chain(Id currentId, Id[] history)
         {

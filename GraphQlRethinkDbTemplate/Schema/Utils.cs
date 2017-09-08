@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using GraphQlRethinkDbTemplate.Attributes;
 using GraphQlRethinkDbTemplate.Schema.Types;
-using GraphQlRethinkDbTemplate.Schema.Types.Converters;
 using GraphQL;
 using GraphQL.Conventions;
 using Newtonsoft.Json;
@@ -25,9 +24,10 @@ namespace GraphQlRethinkDbTemplate.Schema
 
         public static bool UsesDeafultDbRead(this Type type)
         {
-            var attributes = type.GetTypeInfo().GetCustomAttributes();
-
-            return attributes.Any(d => d is UseDefaultDbReadAttribute);
+            if (!type.IsNodeBase() || type.IsAbstract)
+                return false;
+            var tableAttribute = type.GetTypeInfo().GetCustomAttribute<TableAttribute>();
+            return tableAttribute?.UseDefaultDbRead ?? true;
         }
 
         private static object CreateEmptyObject(Type type)
@@ -76,6 +76,8 @@ namespace GraphQlRethinkDbTemplate.Schema
                     return HandleArray(type, jToken);
                 case JTokenType.String:
                     return HandleString(type, jToken);
+                case JTokenType.Null:
+                    return null;
             }
             throw new NotImplementedException($"Type: {jToken.Type.ToString()} is not handled yet");
         }
@@ -85,7 +87,7 @@ namespace GraphQlRethinkDbTemplate.Schema
             var strVal = jToken.GetValue().ToString();
             if (type == typeof(Id))
                 return new Id(strVal);
-            if (!type.IsTypeBase()) return strVal;
+            if (!type.IsNodeBase()) return strVal;
 
             var dummyRet = CreateDummyObject(type, new Id(strVal));
             return dummyRet;
@@ -120,10 +122,10 @@ namespace GraphQlRethinkDbTemplate.Schema
             return ret;
         }
 
-        public static bool IsTypeBase(this Type type)
+        public static bool IsNodeBase(this Type type)
         {
-            return typeof(TypeBase).IsAssignableFrom(type)
-                || typeof(TypeBase).IsAssignableFrom(type.GetElementType());
+            return typeof(NodeBase).IsAssignableFrom(type)
+                || typeof(NodeBase).IsAssignableFrom(type.GetElementType());
         }
 
         public static string GetJPropertyName(this PropertyInfo propertyInfo)
@@ -141,16 +143,16 @@ namespace GraphQlRethinkDbTemplate.Schema
             return ret.ToArray();
         }
 
-        public static string SerializeObject(Type type, JToken jToken)
+        public static JToken ChangeTypeBaseItemsToIds(Type type, JToken jToken)
         {
-            ChangeTypeBaseItemsToIds(type, jToken);
-            var ret = jToken.ToString();
+            var ret = jToken.DeepClone();
+            ChangeTypeBaseItemsToIds(type, ret, true);
             return ret;
         }
 
-        private static void ChangeTypeBaseItemsToIds(Type type, JToken jToken, bool root = true)
+        private static void ChangeTypeBaseItemsToIds(Type type, JToken jToken, bool root)
         {
-            if (!root && type.IsTypeBase())
+            if (!root && type.IsNodeBase())
             {
                 var id = jToken["id"].ToString();
                 var newToken = new JValue(id);
@@ -169,12 +171,12 @@ namespace GraphQlRethinkDbTemplate.Schema
                 if (property.PropertyType.IsArray)
                 {
                     var propertyType = property.PropertyType.GetElementType();
-                    var list = jProperty.Values().ToList();
+                    var list = jProperty.Values().Where(d=>d.Type!=JTokenType.Null).ToList();
                     list.ForEach(d => ChangeTypeBaseItemsToIds(propertyType, d, false));
                 }
                 else
                 {
-                    ChangeTypeBaseItemsToIds(property.PropertyType, jProperty, false);
+                    ChangeTypeBaseItemsToIds(property.PropertyType, jProperty.Single(), false);
                 }
             }
         }
@@ -183,6 +185,11 @@ namespace GraphQlRethinkDbTemplate.Schema
         {
             var ret = (jToken as JProperty)?.Name;
             return ret;
+        }
+
+        private static bool Ignore(this PropertyInfo propertyInfo)
+        {
+            return propertyInfo.GetCustomAttribute<JsonIgnoreAttribute>() != null;
         }
     }
 }

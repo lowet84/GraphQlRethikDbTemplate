@@ -34,7 +34,8 @@ namespace GraphQlRethinkDbTemplate
         {
             if (!id.IsIdentifierForType<T>())
             {
-                throw new ArgumentException("Id type does not match generic type.");
+                var type = typeof(T);
+                throw new ArgumentException($"Id type does not match generic type {type.Name}.");
             }
 
             if (typeof(T).UsesDeafultDbRead())

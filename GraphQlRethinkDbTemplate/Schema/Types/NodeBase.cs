@@ -6,16 +6,16 @@ using Newtonsoft.Json;
 
 namespace GraphQlRethinkDbTemplate.Schema.Types
 {
-    public abstract class TypeBase<T> : TypeBase
+    public abstract class NodeBase<T> : NodeBase
     {
-        protected TypeBase() : base(Id.New<T>(Guid.NewGuid().ToString()))
+        protected NodeBase() : base(Id.New<T>(Guid.NewGuid().ToString()))
         {
         }
     }
 
-    public abstract class TypeBase : INode
+    public abstract class NodeBase : INode
     {
-        protected TypeBase(Id id)
+        protected NodeBase(Id id)
         {
             Id = id;
         }

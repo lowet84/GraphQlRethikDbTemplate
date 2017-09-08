@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using GraphQlRethinkDbTemplate.Database;
 using Microsoft.AspNetCore.Hosting;
 
 namespace GraphQlRethinkDbTemplate
@@ -7,6 +8,7 @@ namespace GraphQlRethinkDbTemplate
     {
         public static void Main(string[] args)
         {
+            var dbContext = DbContext.Instance;
             var host = new WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
