@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using GraphQlRethinkDbTemplate.Attributes;
 using GraphQlRethinkDbTemplate.Schema.Types;
+using GraphQlRethinkDbTemplate.Schema.Types.Converters;
 using GraphQL;
 using GraphQL.Conventions;
 using Newtonsoft.Json;
@@ -109,7 +110,7 @@ namespace GraphQlRethinkDbTemplate.Schema
             var properties = type.GetProperties();
             foreach (var property in properties)
             {
-                var jPropertyName = property.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName ?? property.Name;
+                var jPropertyName = property.GetJPropertyName();
                 var value = jToken[jPropertyName];
                 if (value == null) continue;
 
@@ -125,6 +126,11 @@ namespace GraphQlRethinkDbTemplate.Schema
                 || typeof(TypeBase).IsAssignableFrom(type.GetElementType());
         }
 
+        public static string GetJPropertyName(this PropertyInfo propertyInfo)
+        {
+            return propertyInfo.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName ?? propertyInfo.Name;
+        }
+
         private static IEnumerable<FieldInfo> GetFields(Type type)
         {
             var ret = new List<FieldInfo>(type.GetFields(Flags));
@@ -133,6 +139,50 @@ namespace GraphQlRethinkDbTemplate.Schema
                 ret.AddRange(GetFields(type.BaseType));
             }
             return ret.ToArray();
+        }
+
+        public static string SerializeObject(Type type, JToken jToken)
+        {
+            ChangeTypeBaseItemsToIds(type, jToken);
+            var ret = jToken.ToString();
+            return ret;
+        }
+
+        private static void ChangeTypeBaseItemsToIds(Type type, JToken jToken, bool root = true)
+        {
+            if (!root && type.IsTypeBase())
+            {
+                var id = jToken["id"].ToString();
+                var newToken = new JValue(id);
+                jToken.Replace(newToken);
+                return;
+            }
+
+            var jProperties = jToken.ToList();
+            var properties = type.GetProperties().ToList();
+            foreach (var jProperty in jProperties)
+            {
+                if (jProperty == null) continue;
+                var property = properties.FirstOrDefault(d => d.GetJPropertyName() == GetJPropertyName(jProperty));
+                if (property == null) continue;
+
+                if (property.PropertyType.IsArray)
+                {
+                    var propertyType = property.PropertyType.GetElementType();
+                    var list = jProperty.Values().ToList();
+                    list.ForEach(d => ChangeTypeBaseItemsToIds(propertyType, d, false));
+                }
+                else
+                {
+                    ChangeTypeBaseItemsToIds(property.PropertyType, jProperty, false);
+                }
+            }
+        }
+
+        private static string GetJPropertyName(JToken jToken)
+        {
+            var ret = (jToken as JProperty)?.Name;
+            return ret;
         }
     }
 }

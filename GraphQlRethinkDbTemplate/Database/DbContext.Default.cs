@@ -17,9 +17,11 @@ namespace GraphQlRethinkDbTemplate.Database
     {
         public T AddDefault<T>(T item)
         {
-            var table = GetTable(typeof(T));
-
-            var result = table.Insert(item).RunResult(_connection);
+            var type = typeof(T);
+            var table = GetTable(type);
+            var jObject = JObject.FromObject(item);
+            var json = Utils.SerializeObject(type, jObject);
+            var result = table.Insert(json).RunResult(_connection);
             if (result.Errors > 0)
             {
                 throw new Exception("Something went wrong");
@@ -154,8 +156,7 @@ namespace GraphQlRethinkDbTemplate.Database
         {
             var properties = type.GetProperties();
             var property = properties.First(d => string.Equals(d.Name, name, StringComparison.CurrentCultureIgnoreCase));
-            var jsonProperty = property.GetCustomAttribute<JsonPropertyAttribute>();
-            var ret = jsonProperty?.PropertyName ?? property.Name;
+            var ret = property.GetJPropertyName();
             return ret;
         }
 
