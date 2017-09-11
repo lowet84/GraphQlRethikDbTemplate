@@ -25,6 +25,6 @@ namespace GraphQlRethinkDbTemplate.Schema.Model
         public Book[] Books { get; }
 
         [Description("All of the authors of the books"), JsonIgnore]
-        public Author[] Authors => Books?.Select(d => d.BookAuthor.Author).ToArray();
+        public Author[] Authors => Books?.SelectMany(d => d.BookAuthors.Select(e=>e.Author)).ToArray();
     }
 }

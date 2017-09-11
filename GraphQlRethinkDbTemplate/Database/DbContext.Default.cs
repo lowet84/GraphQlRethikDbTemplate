@@ -110,7 +110,7 @@ namespace GraphQlRethinkDbTemplate.Database
             }
         }
 
-        private ReqlExpr Merge(ReqlExpr expr, ImportTreeItem importTree)
+        private static ReqlExpr Merge(ReqlExpr expr, ImportTreeItem importTree)
         {
             var ret = expr;
 
@@ -130,7 +130,9 @@ namespace GraphQlRethinkDbTemplate.Database
                 }
                 else if (importItem.IsArray)
                 {
-                    // Work here, It is still not possible to have an array of poco:s that contains id:s.
+                    ret = ret.Merge(item => R.HashMap(importItem.PropertyName,
+                        item.G(importItem.PropertyName).Map(subItem => Merge(subItem, importItem))
+                            .CoerceTo("ARRAY")));
                 }
                 else
                 {
@@ -179,39 +181,50 @@ namespace GraphQlRethinkDbTemplate.Database
         private ImportTreeItem GetImportTree(Type unsafeType, MapObject hashMap, string rootProperty)
         {
             var type = GetTypeIfArray(unsafeType);
-            var ret = new ImportTreeItem
-            {
-                Table = GetTable(type),
-                PropertyName = rootProperty,
-                IsArray = unsafeType.IsArray,
-                NodeBase = type.IsNodeBase()
-            };
+
             var properties = hashMap.Select(d =>
             {
                 var property = type.GetProperty(d.Key.ToString());
                 return new { Property = property, HashMap = d.Value as MapObject };
             }).Where(d => d.HashMap != null).ToList();
-            //var importProperties = properties.Where(d => d.Property?.PropertyType?.IsNodeBase() == true)
-            //    .ToList();
-            ret.ImportItems = properties
+            var importItems = properties
                 .Select(d => GetImportTree(d.Property.PropertyType, d.HashMap, d.Property.Name)).ToList();
-            ret.Clean();
+            var ret = new ImportTreeItem(
+                GetTable(type),
+                rootProperty,
+                unsafeType.IsArray,
+                type.IsNodeBase(),
+                importItems
+            );
             return ret;
         }
 
         private class ImportTreeItem
         {
-            public Table Table { get; set; }
-            public bool NodeBase { get; set; }
-            public bool HasNodeBase => NodeBase || ImportItems.Any(d => d.HasNodeBase);
-            public string PropertyName { get; set; }
-            public bool IsArray { get; set; }
-            public List<ImportTreeItem> ImportItems { get; set; }
+            private readonly List<ImportTreeItem> _importItems;
 
-            public void Clean()
+            public ImportTreeItem(Table table, string propertyName, bool isArray, bool nodeBase, List<ImportTreeItem> importItems)
             {
-                var toRemove = ImportItems.Where(d => !d.HasNodeBase).ToList();
-                toRemove.ForEach(d => ImportItems.Remove(d));
+                _importItems = importItems;
+                Table = table;
+                PropertyName = propertyName;
+                IsArray = isArray;
+                NodeBase = nodeBase;
+                Clean();
+            }
+
+            public Table Table { get; }
+            public bool NodeBase { get;}
+            private bool HasNodeBase => NodeBase || ImportItems.Any(d => d.HasNodeBase);
+            public string PropertyName { get; }
+            public bool IsArray { get; }
+            public IEnumerable<ImportTreeItem> ImportItems => _importItems;
+
+            private void Clean()
+            {
+                _importItems.ForEach(d=>d.Clean());
+                var toRemove = _importItems.Where(d => !d.HasNodeBase).ToList();
+                toRemove.ForEach(d => _importItems.Remove(d));
             }
         }
 
