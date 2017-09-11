@@ -50,7 +50,7 @@ namespace GraphQlRethinkDbTemplate.Schema
             var oldSeries = context.Get<Series>(new Id(seriesId), UserContext.ReadType.Shallow);
             var book = Utils.CreateDummyObject<Book>(new Id(bookId));
             var newSeries = new Series(oldSeries.Name, Utils.AddOrInitializeArray(oldSeries.Books, book));
-            var ret = context.AddDefault(newSeries);
+            var ret = context.UpdateDefault(newSeries, oldSeries.Id);
             return new DefaultResult<Series>(ret);
         }
     }

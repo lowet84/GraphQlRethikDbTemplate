@@ -78,14 +78,22 @@ namespace GraphQlRethinkDbTemplate.Schema
                     return HandleString(type, jToken);
                 case JTokenType.Null:
                     return null;
+                case JTokenType.Integer:
+                    return HandleInteger(type, jToken);
             }
             throw new NotImplementedException($"Type: {jToken.Type.ToString()} is not handled yet");
+        }
+
+        private static object HandleInteger(Type type, JToken jToken)
+        {
+            var ret = type.GetMethod("Parse", new[] { typeof(string) }).Invoke(null, new object[] { jToken.ToString() });
+            return ret;
         }
 
         private static object HandleString(Type type, JToken jToken)
         {
             var strVal = jToken.GetValue().ToString();
-            if (type == typeof(Id))
+            if (type == typeof(Id) || type == typeof(Id?))
                 return new Id(strVal);
             if (!type.IsNodeBase()) return strVal;
 
@@ -171,7 +179,7 @@ namespace GraphQlRethinkDbTemplate.Schema
                 if (property.PropertyType.IsArray)
                 {
                     var propertyType = property.PropertyType.GetElementType();
-                    var list = jProperty.Values().Where(d=>d.Type!=JTokenType.Null).ToList();
+                    var list = jProperty.Values().Where(d => d.Type != JTokenType.Null).ToList();
                     list.ForEach(d => ChangeTypeBaseItemsToIds(propertyType, d, false));
                 }
                 else

@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using GraphQlRethinkDbTemplate.Database;
 using GraphQlRethinkDbTemplate.Schema;
+using GraphQlRethinkDbTemplate.Schema.Types;
 using GraphQL.Conventions;
 using GraphQLParser;
 using GraphQLParser.AST;
@@ -40,18 +41,21 @@ namespace GraphQlRethinkDbTemplate
 
             if (typeof(T).UsesDeafultDbRead())
             {
-                var data = DbContext.Instance.ReadByIdDefault<T>(id, Document, readType);
+                var data = DbContext.Instance.ReadByIdDefault<T>(id, readType, Document);
                 return data;
             }
             throw new ArgumentException($"Unable to derive type from identifier '{id}'");
         }
 
-        public T AddDefault<T>(T newItem)
+        public T AddDefault<T>(T newItem) where T: NodeBase
         {
             return DbContext.Instance.AddDefault(newItem);
         }
 
-
+        public T UpdateDefault<T>(T newItem, Id oldId) where T : NodeBase
+        {
+            return DbContext.Instance.AddDefault(newItem, oldId);
+        }
 
         public static GraphQLDocument GetDocument(string query)
         {

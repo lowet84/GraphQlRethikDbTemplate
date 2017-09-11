@@ -1,19 +1,57 @@
-﻿using GraphQlRethinkDbTemplate.Attributes;
+﻿using System;
+using GraphQlRethinkDbTemplate.Attributes;
+using GraphQlRethinkDbTemplate.Database;
+using GraphQlRethinkDbTemplate.Schema.Types.Converters;
 using GraphQL.Conventions;
+using Newtonsoft.Json;
 
 namespace GraphQlRethinkDbTemplate.Schema.Types
 {
     [Description("The chain")]
     public class Chain : NodeBase<Chain>
     {
-        public Chain(Id currentId, Id[] history)
+        public static Chain CreateChainLink<T>(Id currentId, Id? oldId = null)
         {
-            CurrentId = currentId;
-            History = history;
+            var type = typeof(T);
+            if (!currentId.IsIdentifierForType<T>())
+                throw new ArgumentException($"currentId is not id of type {type.Name}");
+            if (oldId != null && !oldId.GetValueOrDefault().IsIdentifierForType<T>())
+                throw new ArgumentException($"oldId is not id of type {type.Name}");
+
+            Id linkId;
+            long version = 0;
+            if (oldId == null)
+            {
+                linkId = Id.New<Chain>(Guid.NewGuid().ToString());
+            }
+            else
+            {
+                var existingChain =
+                    DbContext.Instance.FindChainLink(oldId.Value);
+                linkId = existingChain.LinkId;
+                version = existingChain.ChainVersion + 1;
+            }
+
+            return new Chain(currentId, oldId, linkId, version);
         }
 
+        [JsonConverter(typeof(IdConverter))]
         public Id CurrentId { get; }
 
-        public Id[] History { get; }
+        [JsonConverter(typeof(IdConverter))]
+        public Id? OldId { get; }
+
+        [JsonConverter(typeof(IdConverter))]
+        public Id LinkId { get; }
+
+        public long ChainVersion { get; }
+
+        private Chain(Id currentId, Id? oldId, Id linkId, long chainVersion)
+        {
+            CurrentId = currentId;
+            OldId = oldId;
+            LinkId = linkId;
+            ChainVersion = chainVersion;
+        }
     }
 }

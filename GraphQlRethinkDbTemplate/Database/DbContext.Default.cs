@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using GraphQlRethinkDbTemplate.Attributes;
 using GraphQlRethinkDbTemplate.Schema;
+using GraphQlRethinkDbTemplate.Schema.Types;
 using GraphQL.Conventions;
 using GraphQLParser.AST;
 using Newtonsoft.Json.Linq;
@@ -14,13 +15,14 @@ namespace GraphQlRethinkDbTemplate.Database
 {
     public partial class DbContext
     {
-        public T AddDefault<T>(T item)
+        public T AddDefault<T>(T item, Id? replaces = null) where T : NodeBase
         {
             var type = typeof(T);
             var table = GetTable(type);
             var jObject = JObject.FromObject(item);
             var jToken = Utils.ChangeTypeBaseItemsToIds(type, jObject);
-            var result = table.Insert(jToken).RunResult(_connection);
+            var chainLink = Chain.CreateChainLink<T>(item.Id, replaces);
+            var result = table.Insert(jToken).Do_(e => GetTable(typeof(Chain)).Insert(chainLink)).RunResult(_connection);
             if (result.Errors > 0)
             {
                 throw new Exception("Something went wrong");
@@ -29,9 +31,9 @@ namespace GraphQlRethinkDbTemplate.Database
             return item;
         }
 
-        public T ReadByIdDefault<T>(Id id, GraphQLDocument document, UserContext.ReadType readType) where T : class
+        public T ReadByIdDefault<T>(Id id, UserContext.ReadType readType, GraphQLDocument document) where T : class
         {
-            var selectionSet = GetSelectionSet(document);
+            var selectionSet = document!= null ? GetSelectionSet(document) : null;
 
             switch (readType)
             {
@@ -44,193 +46,6 @@ namespace GraphQlRethinkDbTemplate.Database
                 default:
                     throw new ArgumentOutOfRangeException(nameof(readType), readType, null);
             }
-        }
-
-        private static string GetTableName(Type unsafeType)
-        {
-            var name = GetTypeIfArray(unsafeType).GetCustomAttribute<TableAttribute>()?.TableName ?? unsafeType.Name;
-            return name;
-        }
-
-        private static Table GetTable(Type type)
-        {
-            return R.Db(DatabaseName).Table(GetTableName(type));
-        }
-
-        private static GraphQLSelectionSet GetSelectionSet(GraphQLDocument document)
-        {
-            var operation =
-                document.Definitions.First(d =>
-                    d.Kind == ASTNodeKind.OperationDefinition) as GraphQLOperationDefinition;
-            var selectionSet = (operation?.SelectionSet?.Selections?.SingleOrDefault() as GraphQLFieldSelection)?.SelectionSet;
-            return selectionSet;
-        }
-
-        private T GetWithDocument<T>(GraphQLSelectionSet selectionSet, Id id) where T : class
-        {
-            var type = typeof(T);
-            var hashMap = GetHashMap(selectionSet, type);
-            try
-            {
-                var result = GetFromDb<T>(id, hashMap);
-                var ret = Utils.DeserializeObject(typeof(T), result);
-                return ret as T;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        private JObject GetFromDb<T>(Id id, MapObject hashMap)
-        {
-            var importTree = GetImportTree(typeof(T), hashMap, null);
-            var table = GetTable(typeof(T));
-            ReqlExpr get = table
-                .Get(id.ToString());
-            get = Merge(get, importTree);
-            get = get.Pluck(hashMap);
-            var result = get.Run(_connection) as JObject;
-            return result;
-        }
-
-        private T GetShallow<T>(Id id) where T : class
-        {
-            var table = GetTable(typeof(T));
-            try
-            {
-                var result = table.Get(id.ToString())
-                    .Run(_connection) as JObject;
-                var ret = Utils.DeserializeObject(typeof(T), result);
-                return ret as T;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        private static ReqlExpr Merge(ReqlExpr expr, ImportTreeItem importTree)
-        {
-            var ret = expr;
-
-            foreach (var importItem in importTree.ImportItems)
-            {
-                if (importItem.IsArray && importItem.NodeBase)
-                {
-                    ret = ret.Merge(item => R.HashMap(importItem.PropertyName,
-                        importItem.Table.GetAll(R.Args(item.G(importItem.PropertyName)))
-                            .Map(subItem => Merge(subItem, importItem))
-                            .CoerceTo("ARRAY")));
-                }
-                else if (importItem.NodeBase)
-                {
-                    ret = ret.Merge(item => R.HashMap(importItem.PropertyName,
-                        Merge(importItem.Table.Get(item.G(importItem.PropertyName)), importItem)));
-                }
-                else if (importItem.IsArray)
-                {
-                    ret = ret.Merge(item => R.HashMap(importItem.PropertyName,
-                        item.G(importItem.PropertyName).Map(subItem => Merge(subItem, importItem))
-                            .CoerceTo("ARRAY")));
-                }
-                else
-                {
-                    ret = ret.Merge(item => R.HashMap(importItem.PropertyName, 
-                        Merge(item.G(importItem.PropertyName), importItem)));
-                }
-            }
-
-            return ret;
-        }
-
-        private static MapObject GetHashMap(
-            GraphQLSelectionSet selectionSet,
-            Type unsafeType)
-        {
-            var mapObject = new MapObject();
-            var type = GetTypeIfArray(unsafeType);
-            foreach (var selection in selectionSet.Selections)
-            {
-                if (!(selection is GraphQLFieldSelection fieldSelection)) continue;
-
-                var name = GetName(fieldSelection.Name.Value, type);
-                if (fieldSelection.SelectionSet == null)
-                {
-                    mapObject = mapObject.With(name, true);
-                }
-                else
-                {
-                    var property = type.GetProperty(name);
-                    var newType = property.PropertyType;
-                    mapObject = mapObject.With(name, GetHashMap(fieldSelection.SelectionSet, newType));
-                }
-            }
-
-            return mapObject;
-        }
-
-        private static string GetName(string name, Type type)
-        {
-            var properties = type.GetProperties();
-            var property = properties.First(d => string.Equals(d.Name, name, StringComparison.CurrentCultureIgnoreCase));
-            var ret = property.GetJPropertyName();
-            return ret;
-        }
-
-        private ImportTreeItem GetImportTree(Type unsafeType, MapObject hashMap, string rootProperty)
-        {
-            var type = GetTypeIfArray(unsafeType);
-
-            var properties = hashMap.Select(d =>
-            {
-                var property = type.GetProperty(d.Key.ToString());
-                return new { Property = property, HashMap = d.Value as MapObject };
-            }).Where(d => d.HashMap != null).ToList();
-            var importItems = properties
-                .Select(d => GetImportTree(d.Property.PropertyType, d.HashMap, d.Property.Name)).ToList();
-            var ret = new ImportTreeItem(
-                GetTable(type),
-                rootProperty,
-                unsafeType.IsArray,
-                type.IsNodeBase(),
-                importItems
-            );
-            return ret;
-        }
-
-        private class ImportTreeItem
-        {
-            private readonly List<ImportTreeItem> _importItems;
-
-            public ImportTreeItem(Table table, string propertyName, bool isArray, bool nodeBase, List<ImportTreeItem> importItems)
-            {
-                _importItems = importItems;
-                Table = table;
-                PropertyName = propertyName;
-                IsArray = isArray;
-                NodeBase = nodeBase;
-                Clean();
-            }
-
-            public Table Table { get; }
-            public bool NodeBase { get;}
-            private bool HasNodeBase => NodeBase || ImportItems.Any(d => d.HasNodeBase);
-            public string PropertyName { get; }
-            public bool IsArray { get; }
-            public IEnumerable<ImportTreeItem> ImportItems => _importItems;
-
-            private void Clean()
-            {
-                _importItems.ForEach(d=>d.Clean());
-                var toRemove = _importItems.Where(d => !d.HasNodeBase).ToList();
-                toRemove.ForEach(d => _importItems.Remove(d));
-            }
-        }
-
-        private static Type GetTypeIfArray(Type type)
-        {
-            return type.IsArray ? type.GetElementType() : type;
         }
     }
 }
