@@ -78,7 +78,7 @@ namespace GraphQlRethinkDbTemplate.Database
             }
         }
 
-        private static ReqlExpr Merge(ReqlExpr expr, ImportTreeItem importTree)
+        private ReqlExpr Merge(ReqlExpr expr, ImportTreeItem importTree)
         {
             var ret = expr;
 
@@ -101,14 +101,14 @@ namespace GraphQlRethinkDbTemplate.Database
             return ret;
         }
 
-        private static ReqlExpr GetItem(ReqlExpr item, ImportTreeItem importItem)
+        private ReqlExpr GetItem(ReqlExpr item, ImportTreeItem importItem)
         {
             // Get array of items from other table by key
             if (importItem.IsArray && importItem.NodeBase)
                 return importItem.Table.GetAll(R.Args(item.G(importItem.PropertyName)));
             // Get single item from other table by key
             if (importItem.NodeBase)
-                return importItem.Table.Get(item.G(importItem.PropertyName));
+                return importItem.Table.Get(GetNewestId(item.G(importItem.PropertyName)));
             // Return raw property (array or object)
             return item.G(importItem.PropertyName);
         }

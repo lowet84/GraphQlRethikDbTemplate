@@ -194,10 +194,5 @@ namespace GraphQlRethinkDbTemplate.Schema
             var ret = (jToken as JProperty)?.Name;
             return ret;
         }
-
-        private static bool Ignore(this PropertyInfo propertyInfo)
-        {
-            return propertyInfo.GetCustomAttribute<JsonIgnoreAttribute>() != null;
-        }
     }
 }
