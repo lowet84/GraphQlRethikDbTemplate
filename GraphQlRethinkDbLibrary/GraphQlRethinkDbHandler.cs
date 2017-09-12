@@ -32,6 +32,7 @@ namespace GraphQlRethinkDbLibrary
             }
 
             _databaseHost = databaseHost;
+            new UserContext(null, _databaseHost);
             _requestHandler = RequestHandler
                 .New()
                 .WithQueryAndMutation<TQuery, TMutation>()
