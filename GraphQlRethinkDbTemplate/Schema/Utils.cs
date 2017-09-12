@@ -49,6 +49,13 @@ namespace GraphQlRethinkDbTemplate.Schema
             }
         }
 
+        public static Id CreateNewId<T>()
+        {
+            var str = RandomIdGenerator.GetBase36(8);
+            var ret = Id.New<T>(str);
+            return ret;
+        }
+
         public static object CreateDummyObject(Type type, Id id)
         {
             if (!id.IsIdentifierForType(type))

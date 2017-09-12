@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQlRethinkDbTemplate.Database;
+using GraphQlRethinkDbTemplate.Database.Search;
 using GraphQlRethinkDbTemplate.Schema;
 using GraphQlRethinkDbTemplate.Schema.Types;
 using GraphQL.Conventions;
@@ -55,6 +56,11 @@ namespace GraphQlRethinkDbTemplate
         public T UpdateDefault<T>(T newItem, Id oldId) where T : NodeBase
         {
             return DbContext.Instance.AddDefault(newItem, oldId);
+        }
+
+        public T[] Search<T>(SearchObject<T> searchObject) where T : NodeBase
+        {
+            return DbContext.Instance.Search(searchObject, Document);
         }
 
         public static GraphQLDocument GetDocument(string query)

@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using GraphQlRethinkDbTemplate.Attributes;
 using GraphQlRethinkDbTemplate.Schema;
 using GraphQlRethinkDbTemplate.Schema.Types;
 using GraphQL.Conventions;
 using GraphQLParser.AST;
 using Newtonsoft.Json.Linq;
-using RethinkDb.Driver.Ast;
-using RethinkDb.Driver.Model;
 
 namespace GraphQlRethinkDbTemplate.Database
 {
@@ -47,6 +41,11 @@ namespace GraphQlRethinkDbTemplate.Database
                 default:
                     throw new ArgumentOutOfRangeException(nameof(readType), readType, null);
             }
+        }
+
+        public T[] GetArrayByIdDefault<T>(Id[] ids, GraphQLDocument document)
+        {
+            return GetWithDocument<T[]>(GetSelectionSet(document), ids);
         }
     }
 }

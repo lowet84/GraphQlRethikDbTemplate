@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using GraphQlRethinkDbTemplate.Schema.Types;
+﻿using GraphQlRethinkDbTemplate.Schema.Types;
 
 namespace GraphQlRethinkDbTemplate.Schema.Model
 {

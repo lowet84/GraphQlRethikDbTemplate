@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using GraphQlRethinkDbTemplate.Database.Search;
 using GraphQlRethinkDbTemplate.Schema.Model;
-using GraphQlRethinkDbTemplate.Schema.Types;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
 
@@ -27,6 +28,26 @@ namespace GraphQlRethinkDbTemplate.Schema
         public Task<Series> Series(UserContext context, Id id)
         {
             var data = context.Get<Series>(id);
+            return Task.FromResult(data);
+        }
+
+        [Description("Search for books")]
+        public Task<Book[]> SearchBook(UserContext context, NonNull<string> text)
+        {
+            var searchObject = new SearchObject<Book>()
+                .Add(SearchOperationType.Match, "Title", text);
+            var data = context.Search(searchObject);
+            return Task.FromResult(data);
+        }
+
+        [Description("Search for series containing a specific book")]
+        public Task<Series[]> SearchSeriesWithBook(UserContext context, Id bookId)
+        {
+            if(!bookId.IsIdentifierForType<Book>())
+                throw new ArgumentException("Id is not correct for type: Book");
+            var searchObject = new SearchObject<Series>()
+                .Add(SearchOperationType.AnyEquals, "Books", bookId.ToString());
+            var data = context.Search(searchObject);
             return Task.FromResult(data);
         }
     }

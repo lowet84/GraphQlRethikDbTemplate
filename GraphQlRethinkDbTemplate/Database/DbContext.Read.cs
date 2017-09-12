@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using GraphQlRethinkDbTemplate.Attributes;
 using GraphQlRethinkDbTemplate.Schema;
+using GraphQL;
 using GraphQL.Conventions;
 using GraphQLParser.AST;
 using Newtonsoft.Json;
@@ -17,7 +18,8 @@ namespace GraphQlRethinkDbTemplate.Database
     {
         private static string GetTableName(Type unsafeType)
         {
-            var name = GetTypeIfArray(unsafeType).GetCustomAttribute<TableAttribute>()?.TableName ?? unsafeType.Name;
+            var safeType = GetTypeIfArray(unsafeType);
+            var name = safeType.GetCustomAttribute<TableAttribute>()?.TableName ?? safeType.Name;
             return name;
         }
 
@@ -35,13 +37,16 @@ namespace GraphQlRethinkDbTemplate.Database
             return selectionSet;
         }
 
-        private T GetWithDocument<T>(GraphQLSelectionSet selectionSet, Id id) where T : class
+        private T GetWithDocument<T>(GraphQLSelectionSet selectionSet, params Id[] id) where T : class
         {
             var type = typeof(T);
             var hashMap = GetHashMap(selectionSet, type);
             try
             {
-                var result = GetFromDb<T>(id, hashMap);
+                var result = type.IsArray
+                    ? (JToken) GetFromDb<T>(id, hashMap)
+                    : GetFromDb<T>(id.First(), hashMap);
+                
                 var ret = Utils.DeserializeObject(typeof(T), result);
                 return ret as T;
             }
@@ -49,6 +54,18 @@ namespace GraphQlRethinkDbTemplate.Database
             {
                 return null;
             }
+        }
+
+        private JArray GetFromDb<T>(Id[] ids, MapObject hashMap)
+        {
+            var importTree = GetImportTree(typeof(T), hashMap, null);
+            var idStrings = ids.Select(d => d.ToString()).ToArray();
+            var table = GetTable(typeof(T));
+            ReqlExpr get = table.GetAll(R.Args(idStrings));
+            get = get.Map(item=>Merge(item, importTree));
+            get = get.Map(item=>item.Pluck(hashMap));
+            var result = get.CoerceTo("ARRAY").Run(_connection) as JArray;
+            return result;
         }
 
         private JObject GetFromDb<T>(Id id, MapObject hashMap)

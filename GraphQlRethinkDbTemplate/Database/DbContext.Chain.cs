@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using GraphQlRethinkDbTemplate.Schema;
+﻿using GraphQlRethinkDbTemplate.Schema;
 using GraphQlRethinkDbTemplate.Schema.Types;
 using GraphQL.Conventions;
 using Newtonsoft.Json.Linq;

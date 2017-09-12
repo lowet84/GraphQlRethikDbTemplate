@@ -1,5 +1,4 @@
 ﻿using System;
-using GraphQlRethinkDbTemplate.Attributes;
 using GraphQlRethinkDbTemplate.Database;
 using GraphQlRethinkDbTemplate.Schema.Types.Converters;
 using GraphQL.Conventions;
@@ -22,7 +21,7 @@ namespace GraphQlRethinkDbTemplate.Schema.Types
             long version = 0;
             if (oldId == null)
             {
-                linkId = Id.New<Chain>(Guid.NewGuid().ToString());
+                linkId = Utils.CreateNewId<Chain>();
             }
             else
             {

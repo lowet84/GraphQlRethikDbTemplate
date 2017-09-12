@@ -8,7 +8,7 @@ namespace GraphQlRethinkDbTemplate.Schema.Types
 {
     public abstract class NodeBase<T> : NodeBase
     {
-        protected NodeBase() : base(Id.New<T>(Guid.NewGuid().ToString()))
+        protected NodeBase() : base(Utils.CreateNewId<T>())
         {
         }
     }
