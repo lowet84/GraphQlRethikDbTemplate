@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using GraphQlRethinkDbLibrary;
 using GraphQlRethinkDbLibrary.Database.Search;
-using GraphQlRethinkDbTemplate.Model;
+using GraphQlRethinkDbTemplate.Schema.Type;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
 

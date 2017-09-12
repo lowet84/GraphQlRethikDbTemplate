@@ -3,7 +3,7 @@ using GraphQlRethinkDbLibrary.Schema.Types;
 using GraphQL.Conventions;
 using Newtonsoft.Json;
 
-namespace GraphQlRethinkDbTemplate.Model
+namespace GraphQlRethinkDbTemplate.Schema.Type
 {
     [Description("A series of books")]
     public class Series : NodeBase<Series>

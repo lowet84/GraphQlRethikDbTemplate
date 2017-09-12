@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using GraphQlRethinkDbLibrary.Schema.Types;
 
-namespace GraphQlRethinkDbTemplate.Model
+namespace GraphQlRethinkDbTemplate.Schema.Type
 {
     [Description("A book")]
     public class Book : NodeBase<Book>

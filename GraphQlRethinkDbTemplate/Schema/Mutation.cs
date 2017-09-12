@@ -1,7 +1,7 @@
 ﻿using GraphQlRethinkDbLibrary;
 using GraphQlRethinkDbLibrary.Schema;
 using GraphQlRethinkDbLibrary.Schema.Output;
-using GraphQlRethinkDbTemplate.Model;
+using GraphQlRethinkDbTemplate.Schema.Type;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
 using OperationType = GraphQL.Conventions.Relay.OperationType;
