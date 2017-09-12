@@ -12,13 +12,15 @@ namespace GraphQlRethinkDbLibrary.Database
         private static readonly RethinkDB R = RethinkDB.R;
         private readonly Connection _connection;
 
-        internal static  void Initialize(string databaseUrl)
+        internal static  void Initialize(string databaseUrl, string databaseName)
         {
             if(_instance!= null)
                 throw new Exception("DbContext is already initialized");
+            DatabaseName = databaseName;
             _instance = new DbContext(databaseUrl);
         }
 
+        private static string DatabaseName { get; set; }
         public static bool Initalized { get; private set; }
 
         private DbContext(string hostName)

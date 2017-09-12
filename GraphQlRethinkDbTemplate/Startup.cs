@@ -13,7 +13,7 @@ namespace GraphQlRethinkDbTemplate
         {
             loggerFactory.AddConsole();
             var handler =
-                GraphQlRethinkDbHandler<Query, Mutation>.Create("localhost");
+                GraphQlRethinkDbHandler<Query, Mutation>.Create("localhost", "GraphQlRethinkDbTemplate");
             app.Run(handler.DeafultHandleRequest);
         }
     }

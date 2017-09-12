@@ -17,17 +17,14 @@ namespace GraphQlRethinkDbLibrary
 
     public class GraphQlRethinkDbHandler<TQuery, TMutation> : IGraphQlRethinkDbHandler
     {
-        private readonly string _databaseHost;
         private readonly IRequestHandler _requestHandler;
 
-        public static IGraphQlRethinkDbHandler Create(string databaseHost)
+        public static IGraphQlRethinkDbHandler Create(string databaseHost, string databaseName)
         {
-            return new GraphQlRethinkDbHandler<TQuery, TMutation>(databaseHost);
+            return new GraphQlRethinkDbHandler<TQuery, TMutation>(databaseHost, databaseName);
         }
 
-        public  
-
-        private GraphQlRethinkDbHandler(string databaseHost)
+        private GraphQlRethinkDbHandler(string databaseHost, string databaseName)
         {
             var queryType = typeof(TQuery);
             var mutationType = typeof(TMutation);
@@ -43,8 +40,7 @@ namespace GraphQlRethinkDbLibrary
                 throw new Exception("Mutation must have attribute [ImplementViewer(OperationType.Mutation)]");
             }
 
-            _databaseHost = databaseHost;
-            new UserContext(null, _databaseHost);
+            new UserContext(null, databaseHost, databaseName);
             _requestHandler = RequestHandler
                 .New()
                 .WithQueryAndMutation<TQuery, TMutation>()
@@ -67,7 +63,7 @@ namespace GraphQlRethinkDbLibrary
 
             var streamReader = new StreamReader(context.Request.Body);
             var body = streamReader.ReadToEnd();
-            var userContext = new UserContext(body, _databaseHost);
+            var userContext = new UserContext(body);
             var result = await _requestHandler
                 .ProcessRequest(Request.New(body), userContext);
             context.Response.Headers.Add("Content-Type", "application/json; charset=utf-8");

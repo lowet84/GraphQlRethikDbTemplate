@@ -23,10 +23,12 @@ namespace GraphQlRethinkDbLibrary
 
         public GraphQLDocument Document { get; }
 
-        public UserContext(string body, string databaseHostName)
+        public UserContext(string body) : this(body, null, null) { }
+
+        public UserContext(string body, string databaseHostName, string databaseName)
         {
-            if(!DbContext.Initalized)
-                DbContext.Initialize(databaseHostName);
+            if (!DbContext.Initalized)
+                DbContext.Initialize(databaseHostName, databaseName);
 
             if (string.IsNullOrEmpty(body)) return;
 

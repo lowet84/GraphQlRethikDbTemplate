@@ -9,8 +9,6 @@ namespace GraphQlRethinkDbLibrary.Database
 {
     public partial class DbContext
     {
-        private const string DatabaseName = "GraphQlRethinkDbTemplate";
-
         private enum SpecialTables
         {
             Chain
