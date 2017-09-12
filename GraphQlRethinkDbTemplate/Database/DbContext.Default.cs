@@ -19,6 +19,7 @@ namespace GraphQlRethinkDbTemplate.Database
         {
             var type = typeof(T);
             var table = GetTable(type);
+            Utils.InitalizeArrays(item);
             var jObject = JObject.FromObject(item);
             var jToken = Utils.ChangeTypeBaseItemsToIds(type, jObject);
             var chainLink = Chain.CreateChainLink<T>(item.Id, replaces);

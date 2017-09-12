@@ -35,6 +35,20 @@ namespace GraphQlRethinkDbTemplate.Schema
             return FormatterServices.GetUninitializedObject(type);
         }
 
+        public static void InitalizeArrays(object item)
+        {
+            var arrayProperties = item.GetType().GetProperties().Where(d => d.PropertyType.IsArray).ToList();
+            foreach (var arrayProperty in arrayProperties)
+            {
+                var value = arrayProperty.GetValue(item);
+                if (value == null)
+                {
+                    var newArray = Array.CreateInstance(arrayProperty.PropertyType.GetElementType(), 0);
+                    ForceSetValue(item, arrayProperty.Name, newArray);
+                }
+            }
+        }
+
         public static object CreateDummyObject(Type type, Id id)
         {
             if (!id.IsIdentifierForType(type))

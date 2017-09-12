@@ -20,9 +20,8 @@ namespace GraphQlRethinkDbTemplate.Database
         public void Test(Id seriesId)
         {
             Instance.FindChainLink(seriesId);
-            // TODO: fixa authors{name{fistName, lastName}}
             var query =
-                @"query{series(id:""#####""){ books{title bookAuthors{author{name{fistName lastName}}} title} }}";
+                @"query{series(id:""#####""){authors{name{fistName, lastName}} name books{title bookAuthors{author{name{fistName lastName}}}} }}";
             query = query.Replace("#####", seriesId.ToString());
             var document = UserContext.GetDocument(query);
             var series = Instance.ReadByIdDefault<Series>(seriesId,UserContext.ReadType.Normal, document);

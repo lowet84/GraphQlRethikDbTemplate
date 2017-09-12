@@ -6,6 +6,7 @@ using GraphQlRethinkDbTemplate.Attributes;
 using GraphQlRethinkDbTemplate.Schema;
 using GraphQL.Conventions;
 using GraphQLParser.AST;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RethinkDb.Driver.Ast;
 using RethinkDb.Driver.Model;
@@ -55,7 +56,7 @@ namespace GraphQlRethinkDbTemplate.Database
             var importTree = GetImportTree(typeof(T), hashMap, null);
             var table = GetTable(typeof(T));
             ReqlExpr get = table
-                .Get(id.ToString());
+                .Get(GetNewestId(id.ToString()));
             get = Merge(get, importTree);
             get = get.Pluck(hashMap);
             var result = get.Run(_connection) as JObject;
@@ -105,7 +106,7 @@ namespace GraphQlRethinkDbTemplate.Database
         {
             // Get array of items from other table by key
             if (importItem.IsArray && importItem.NodeBase)
-                return importItem.Table.GetAll(R.Args(item.G(importItem.PropertyName)));
+                return importItem.Table.GetAll(R.Args(item.G(importItem.PropertyName).Map(GetNewestId)));
             // Get single item from other table by key
             if (importItem.NodeBase)
                 return importItem.Table.Get(GetNewestId(item.G(importItem.PropertyName)));
@@ -119,6 +120,7 @@ namespace GraphQlRethinkDbTemplate.Database
         {
             var mapObject = new MapObject();
             var type = GetTypeIfArray(unsafeType);
+
             foreach (var selection in selectionSet.Selections)
             {
                 if (!(selection is GraphQLFieldSelection fieldSelection)) continue;
@@ -131,6 +133,10 @@ namespace GraphQlRethinkDbTemplate.Database
                 else
                 {
                     var property = type.GetProperty(name);
+                    var ignore = property.GetCustomAttribute<JsonIgnoreAttribute>() != null;
+                    if (ignore)
+                        continue;
+
                     var newType = property.PropertyType;
                     mapObject = mapObject.With(name, GetHashMap(fieldSelection.SelectionSet, newType));
                 }
