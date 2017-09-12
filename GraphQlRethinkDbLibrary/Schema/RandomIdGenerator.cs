@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace GraphQlRethinkDbTemplate.Schema
+namespace GraphQlRethinkDbLibrary.Schema
 {
     public static class RandomIdGenerator
     {

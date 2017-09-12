@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Linq;
-using GraphQlRethinkDbTemplate.Database.Search;
-using GraphQlRethinkDbTemplate.Schema;
-using GraphQlRethinkDbTemplate.Schema.Types;
+using GraphQlRethinkDbLibrary.Database.Search;
+using GraphQlRethinkDbLibrary.Schema.Types;
 using GraphQL.Conventions;
 using GraphQLParser.AST;
-using Microsoft.AspNetCore.Builder;
 using Newtonsoft.Json.Linq;
 using RethinkDb.Driver.Ast;
 
-namespace GraphQlRethinkDbTemplate.Database
+namespace GraphQlRethinkDbLibrary.Database
 {
     public partial class DbContext
     {

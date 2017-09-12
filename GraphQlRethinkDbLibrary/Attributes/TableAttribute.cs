@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GraphQlRethinkDbTemplate.Attributes
+namespace GraphQlRethinkDbLibrary.Attributes
 {
     public class TableAttribute : Attribute
     {

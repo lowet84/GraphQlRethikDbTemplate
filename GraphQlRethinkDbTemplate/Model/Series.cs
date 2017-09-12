@@ -1,9 +1,9 @@
 ﻿using System.Linq;
-using GraphQlRethinkDbTemplate.Schema.Types;
+using GraphQlRethinkDbLibrary.Schema.Types;
 using GraphQL.Conventions;
 using Newtonsoft.Json;
 
-namespace GraphQlRethinkDbTemplate.Schema.Model
+namespace GraphQlRethinkDbTemplate.Model
 {
     [Description("A series of books")]
     public class Series : NodeBase<Series>

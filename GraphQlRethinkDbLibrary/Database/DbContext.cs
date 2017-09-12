@@ -3,19 +3,26 @@ using System.Collections.Generic;
 using RethinkDb.Driver;
 using RethinkDb.Driver.Net;
 
-namespace GraphQlRethinkDbTemplate.Database
+namespace GraphQlRethinkDbLibrary.Database
 {
     public partial class DbContext
     {
         private static DbContext _instance;
-        public static DbContext Instance => _instance ?? (_instance = new DbContext());
+        internal static DbContext Instance => _instance ?? throw new Exception("DbContext is not initialized");
         private static readonly RethinkDB R = RethinkDB.R;
         private readonly Connection _connection;
-        private static bool _initialized;
 
-        private DbContext()
+        internal static  void Initialize(string databaseUrl)
         {
-            var hostName = Environment.GetEnvironmentVariable("DATABASE") ?? DeafultDatabase;
+            if(_instance!= null)
+                throw new Exception("DbContext is already initialized");
+            _instance = new DbContext(databaseUrl);
+        }
+
+        public static bool Initalized { get; private set; }
+
+        private DbContext(string hostName)
+        {
             Console.WriteLine($"Connecting to database: {hostName}");
             _connection = R.Connection()
                 .Hostname(hostName)
@@ -27,7 +34,7 @@ namespace GraphQlRethinkDbTemplate.Database
 
         private void CheckAndPopulateIfNeeded()
         {
-            if (_initialized) return;
+            if (Initalized) return;
             var list = R.DbList().Run<List<string>>(_connection);
             if (!list.Contains(DatabaseName))
             {
@@ -40,7 +47,7 @@ namespace GraphQlRethinkDbTemplate.Database
                 if (!tables.Contains(tableName))
                     R.Db(DatabaseName).TableCreate(tableName).Run(_connection);
             }
-            _initialized = true;
+            Initalized = true;
         }
     }
 }

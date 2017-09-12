@@ -1,10 +1,10 @@
 ﻿using System;
-using GraphQlRethinkDbTemplate.Database;
-using GraphQlRethinkDbTemplate.Schema.Types.Converters;
+using GraphQlRethinkDbLibrary.Database;
+using GraphQlRethinkDbLibrary.Schema.Types.Converters;
 using GraphQL.Conventions;
 using Newtonsoft.Json;
 
-namespace GraphQlRethinkDbTemplate.Schema.Types
+namespace GraphQlRethinkDbLibrary.Schema.Types
 {
     [Description("The chain")]
     public class Chain : NodeBase<Chain>

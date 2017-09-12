@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Database\DataObjects\**" />
+    <EmbeddedResource Remove="Database\DataObjects\**" />
+    <None Remove="Database\DataObjects\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Schema\Input\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GraphQL.Conventions" Version="1.3.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="1.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="RethinkDb.Driver" Version="2.3.20" />
+  </ItemGroup>
+
+</Project>

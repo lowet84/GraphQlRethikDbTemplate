@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using GraphQlRethinkDbTemplate.Attributes;
-using GraphQlRethinkDbTemplate.Schema;
+using GraphQlRethinkDbLibrary.Attributes;
+using GraphQlRethinkDbLibrary.Schema;
 
-namespace GraphQlRethinkDbTemplate.Database
+namespace GraphQlRethinkDbLibrary.Database
 {
     public partial class DbContext
     {
         private const string DatabaseName = "GraphQlRethinkDbTemplate";
-        private const string DeafultDatabase = "localhost";
 
         private enum SpecialTables
         {
-
+            Chain
         }
 
         private static IEnumerable<string> DefaultTypes =>

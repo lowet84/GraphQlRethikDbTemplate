@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using GraphQlRethinkDbTemplate.Database;
-using GraphQlRethinkDbTemplate.Database.Search;
-using GraphQlRethinkDbTemplate.Schema;
-using GraphQlRethinkDbTemplate.Schema.Types;
+using GraphQlRethinkDbLibrary.Database;
+using GraphQlRethinkDbLibrary.Database.Search;
+using GraphQlRethinkDbLibrary.Schema;
+using GraphQlRethinkDbLibrary.Schema.Types;
 using GraphQL.Conventions;
 using GraphQLParser;
 using GraphQLParser.AST;
 using Newtonsoft.Json.Linq;
 
-namespace GraphQlRethinkDbTemplate
+namespace GraphQlRethinkDbLibrary
 {
     public class UserContext : IUserContext, IDataLoaderContextProvider
     {
@@ -23,12 +23,21 @@ namespace GraphQlRethinkDbTemplate
 
         public GraphQLDocument Document { get; }
 
-        public UserContext(string body)
+        public UserContext(string body, string databaseHostName)
         {
-            if (!string.IsNullOrEmpty(body))
+            if(!DbContext.Initalized)
+                DbContext.Initialize(databaseHostName);
+
+            if (string.IsNullOrEmpty(body)) return;
+
+            try
             {
                 var query = JObject.Parse(body).GetValue("query").ToString();
                 Document = GetDocument(query);
+            }
+            catch (Exception)
+            {
+                Document = GetDocument(body);
             }
         }
 
@@ -48,7 +57,7 @@ namespace GraphQlRethinkDbTemplate
             throw new ArgumentException($"Unable to derive type from identifier '{id}'");
         }
 
-        public T AddDefault<T>(T newItem) where T: NodeBase
+        public T AddDefault<T>(T newItem) where T : NodeBase
         {
             return DbContext.Instance.AddDefault(newItem);
         }
@@ -75,6 +84,13 @@ namespace GraphQlRethinkDbTemplate
         public Task FetchData(CancellationToken token)
         {
             return Task.CompletedTask;
+        }
+
+        public void Reset()
+        {
+            // ### DANGER!!!!! ###
+            // This will delete your database
+            DbContext.Instance.Reset();
         }
     }
 }

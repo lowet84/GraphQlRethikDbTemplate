@@ -1,11 +1,7 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
+﻿using GraphQlRethinkDbLibrary;
 using GraphQlRethinkDbTemplate.Schema;
-using GraphQL.Conventions.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -13,7 +9,7 @@ namespace GraphQlRethinkDbTemplate
 {
     public class Startup
     {
-        private IRequestHandler _requestHandler;
+        private readonly GraphQlRethinkDbHandler<Query, Mutation> _handler = new GraphQlRethinkDbHandler<Query, Mutation>("localhost");
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -23,37 +19,7 @@ namespace GraphQlRethinkDbTemplate
         {
             loggerFactory.AddConsole();
 
-            _requestHandler = RequestHandler
-                .New()
-                .WithQueryAndMutation<Schema.Query, Mutation>()
-                .Generate();
-
-
-            app.Run(HandleRequest);
-        }
-
-        private async Task HandleRequest(HttpContext context)
-        {
-            if (string.Compare(context.Request.Method, "OPTIONS", StringComparison.OrdinalIgnoreCase) == 0)
-            {
-                context.Response.StatusCode = 200;
-                return;
-            }
-
-            if (string.Compare(context.Request.Method, "POST", StringComparison.OrdinalIgnoreCase) != 0)
-            {
-                context.Response.StatusCode = 400;
-                return;
-            }
-
-            var streamReader = new StreamReader(context.Request.Body);
-            var body = streamReader.ReadToEnd();
-            var userContext = new UserContext(body);
-            var result = await _requestHandler
-                .ProcessRequest(Request.New(body), userContext);
-            context.Response.Headers.Add("Content-Type", "application/json; charset=utf-8");
-            context.Response.StatusCode = result.Errors?.Count > 0 ? 400 : 200;
-            await context.Response.WriteAsync(result.Body);
+            app.Run(_handler.DeafultHandleRequest);
         }
     }
 }

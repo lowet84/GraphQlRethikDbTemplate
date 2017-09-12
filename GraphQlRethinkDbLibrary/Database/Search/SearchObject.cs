@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace GraphQlRethinkDbTemplate.Database.Search
+namespace GraphQlRethinkDbLibrary.Database.Search
 {
     public class SearchObject<T>
     {

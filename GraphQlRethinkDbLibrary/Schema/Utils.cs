@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using GraphQlRethinkDbTemplate.Attributes;
-using GraphQlRethinkDbTemplate.Schema.Types;
+using GraphQlRethinkDbLibrary.Attributes;
+using GraphQlRethinkDbLibrary.Schema.Types;
 using GraphQL;
 using GraphQL.Conventions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace GraphQlRethinkDbTemplate.Schema
+namespace GraphQlRethinkDbLibrary.Schema
 {
     public static class Utils
     {
@@ -162,7 +162,7 @@ namespace GraphQlRethinkDbTemplate.Schema
             return propertyInfo.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName ?? propertyInfo.Name;
         }
 
-        private static IEnumerable<FieldInfo> GetFields(Type type)
+        internal static IEnumerable<FieldInfo> GetFields(Type type)
         {
             var ret = new List<FieldInfo>(type.GetFields(Flags));
             if (type.BaseType != null)

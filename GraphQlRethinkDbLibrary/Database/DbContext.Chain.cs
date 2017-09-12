@@ -1,10 +1,12 @@
-﻿using GraphQlRethinkDbTemplate.Schema;
-using GraphQlRethinkDbTemplate.Schema.Types;
+﻿
+
+using GraphQlRethinkDbLibrary.Schema;
+using GraphQlRethinkDbLibrary.Schema.Types;
 using GraphQL.Conventions;
 using Newtonsoft.Json.Linq;
 using RethinkDb.Driver.Ast;
 
-namespace GraphQlRethinkDbTemplate.Database
+namespace GraphQlRethinkDbLibrary.Database
 {
     public partial class DbContext
     {

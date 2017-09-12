@@ -1,6 +1,6 @@
-﻿using GraphQlRethinkDbTemplate.Schema.Types;
+﻿using GraphQlRethinkDbLibrary.Schema.Types;
 
-namespace GraphQlRethinkDbTemplate.Schema.Model
+namespace GraphQlRethinkDbTemplate.Model
 {
     public class Author : NodeBase<Author>
     {
