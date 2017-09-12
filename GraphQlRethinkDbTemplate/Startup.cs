@@ -9,17 +9,12 @@ namespace GraphQlRethinkDbTemplate
 {
     public class Startup
     {
-        private readonly GraphQlRethinkDbHandler<Query, Mutation> _handler = new GraphQlRethinkDbHandler<Query, Mutation>("localhost");
-
-        public void ConfigureServices(IServiceCollection services)
-        {
-        }
-
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole();
-
-            app.Run(_handler.DeafultHandleRequest);
+            var handler =
+                GraphQlRethinkDbHandler<Query, Mutation>.Create("localhost");
+            app.Run(handler.DeafultHandleRequest);
         }
     }
 }

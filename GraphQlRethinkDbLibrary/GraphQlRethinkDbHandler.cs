@@ -10,12 +10,24 @@ using Microsoft.AspNetCore.Http;
 
 namespace GraphQlRethinkDbLibrary
 {
-    public class GraphQlRethinkDbHandler<TQuery, TMutation>
+    public interface IGraphQlRethinkDbHandler
+    {
+        Task DeafultHandleRequest(HttpContext context);
+    }
+
+    public class GraphQlRethinkDbHandler<TQuery, TMutation> : IGraphQlRethinkDbHandler
     {
         private readonly string _databaseHost;
         private readonly IRequestHandler _requestHandler;
 
-        public GraphQlRethinkDbHandler(string databaseHost)
+        public static IGraphQlRethinkDbHandler Create(string databaseHost)
+        {
+            return new GraphQlRethinkDbHandler<TQuery, TMutation>(databaseHost);
+        }
+
+        public  
+
+        private GraphQlRethinkDbHandler(string databaseHost)
         {
             var queryType = typeof(TQuery);
             var mutationType = typeof(TMutation);
