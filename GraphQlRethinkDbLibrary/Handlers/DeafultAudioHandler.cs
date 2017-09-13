@@ -34,7 +34,6 @@ namespace GraphQlRethinkDbLibrary.Handlers
                     var id = new Id(idString);
                     var audio = GetAudioFunction.Invoke(id);
                     context.Response.Headers.Add("Content-Type", audio.ContentType);
-                    context.Response.Headers.Add("Content-Length", audio.Length.ToString());
                     var result = new VideoStreamResult(index => GetData(index, audio), "audio/mpeg", audio.Length, audio.BlockSize);
                     result.ExecuteResultAsync(context).Wait();
                     return;
@@ -50,7 +49,10 @@ namespace GraphQlRethinkDbLibrary.Handlers
 
         private IDefaultAudioData GetData(long index, IDefaultAudio defaultAudio)
         {
-            var part = index / defaultAudio.BlockSize;
+            var partIndex = index / defaultAudio.BlockSize;
+            var partFix = (index % defaultAudio.BlockSize > 0 ? 1 : 0);
+            var part = partIndex + partFix;
+            Console.WriteLine($"{partIndex} {partFix}");
             var id = defaultAudio.AudioData[part].Id;
             var data = GetDataFunction(id);
             return data;
@@ -153,16 +155,14 @@ namespace GraphQlRethinkDbLibrary.Handlers
                 var bytesRemaining = totalToSend + 1;
                 response.ContentLength = bytesRemaining;
 
+                var currentIndex = startIndex;
                 while (bytesRemaining > 0)
                 {
                     try
                     {
-                        var buffer = Convert.FromBase64String(GetDataFunction(startIndex).Data);
-                        startIndex += buffer.Length;
+                        var buffer = Convert.FromBase64String(GetDataFunction(currentIndex).Data);
+                        currentIndex += buffer.Length;
                         var count = bytesRemaining - buffer.Length;
-
-                        if (count == 0)
-                            return;
 
                         await response.Body.WriteAsync(buffer, 0, buffer.Length);
 

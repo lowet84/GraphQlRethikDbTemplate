@@ -28,17 +28,16 @@ namespace GraphQlRethinkDbTemplate
             var audioData = new HttpClient()
                 .GetByteArrayAsync("http://www.podtrac.com/pts/redirect.mp3/podcast.thisamericanlife.org/podcast/625.mp3")
                 .Result;
-            var length = audioData.Length;
             var blockSize = 200000;
             var audioDataParts = new List<AudioData>();
             while (audioData.Length > 0)
             {
                 var dataPart = audioData.Take(blockSize).ToArray();
                 audioData = audioData.Skip(blockSize).ToArray();
-                var part = new AudioData(Convert.ToBase64String(dataPart));
+                var part = new AudioData(Convert.ToBase64String(dataPart), dataPart.Length);
                 audioDataParts.Add(part);
             }
-            var audio = new Audio(audioDataParts.ToArray(), "dummy", "audio/mpeg", blockSize, length);
+            var audio = new Audio(audioDataParts.ToArray(), "dummy", "audio/mpeg", blockSize);
 
             var query =
                 @"query{series(id:""#####""){authors{name{fistName, lastName}} name books{id title bookAuthors{author{name{fistName lastName}}}} }}";

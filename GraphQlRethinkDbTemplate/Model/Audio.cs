@@ -10,13 +10,13 @@ namespace GraphQlRethinkDbTemplate.Model
 {
     public class Audio : NodeBase<Audio>, IDefaultAudio
     {
-        public Audio(AudioData[] audioData, string source, string contentType, int blockSize, int length)
+        public Audio(AudioData[] audioData, string source, string contentType, int blockSize)
         {
             ContentType = contentType;
             AudioData = audioData;
             BlockSize = blockSize;
             Source = source;
-            Length = length;
+            Length = audioData.Sum(d => d.Length);
         }
 
         public string ContentType { get; }

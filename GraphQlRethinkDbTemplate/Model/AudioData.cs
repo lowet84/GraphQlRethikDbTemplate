@@ -9,11 +9,13 @@ namespace GraphQlRethinkDbTemplate.Model
 {
     public class AudioData : NodeBase<AudioData>, IDefaultAudioData
     {
-        public AudioData(string data)
+        public AudioData(string data, int length)
         {
             Data = data;
+            Length = length;
         }
 
         public string Data { get; }
+        public int Length { get; }
     }
 }
