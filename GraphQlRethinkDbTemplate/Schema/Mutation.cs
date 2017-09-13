@@ -4,7 +4,7 @@ using System.Net.Http;
 using GraphQlRethinkDbLibrary;
 using GraphQlRethinkDbLibrary.Schema;
 using GraphQlRethinkDbLibrary.Schema.Output;
-using GraphQlRethinkDbTemplate.Schema.Type;
+using GraphQlRethinkDbTemplate.Model;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
 using OperationType = GraphQL.Conventions.Relay.OperationType;

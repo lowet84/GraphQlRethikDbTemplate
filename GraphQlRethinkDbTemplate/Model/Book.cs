@@ -1,9 +1,7 @@
-﻿
-
-using GraphQlRethinkDbLibrary.Schema.Types;
+﻿using GraphQlRethinkDbLibrary.Schema.Types;
 using GraphQL.Conventions;
 
-namespace GraphQlRethinkDbTemplate.Schema.Type
+namespace GraphQlRethinkDbTemplate.Model
 {
     [Description("A book")]
     public class Book : NodeBase<Book>

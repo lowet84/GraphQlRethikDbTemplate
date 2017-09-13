@@ -1,7 +1,7 @@
 ﻿using GraphQlRethinkDbLibrary.Handlers;
 using GraphQlRethinkDbLibrary.Schema.Types;
 
-namespace GraphQlRethinkDbTemplate.Schema.Type
+namespace GraphQlRethinkDbTemplate.Model
 {
     public class Image : NodeBase<Image>, IDeafultImage
     {

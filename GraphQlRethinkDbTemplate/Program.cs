@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using GraphQlRethinkDbLibrary;
 using GraphQlRethinkDbLibrary.Database.Search;
-using GraphQlRethinkDbTemplate.Schema.Type;
+using GraphQlRethinkDbTemplate.Model;
 using Microsoft.AspNetCore.Hosting;
 
 namespace GraphQlRethinkDbTemplate

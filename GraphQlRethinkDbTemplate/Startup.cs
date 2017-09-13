@@ -1,8 +1,8 @@
 ﻿using System;
 using GraphQlRethinkDbLibrary;
 using GraphQlRethinkDbLibrary.Handlers;
+using GraphQlRethinkDbTemplate.Model;
 using GraphQlRethinkDbTemplate.Schema;
-using GraphQlRethinkDbTemplate.Schema.Type;
 using GraphQL.Conventions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
