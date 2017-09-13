@@ -46,10 +46,8 @@ namespace GraphQlRethinkDbLibrary.Database
                 var ids = result.Select(d => new Id(d.ToString())).ToArray();
                 switch (readType)
                 {
-                    case UserContext.ReadType.Normal:
+                    case UserContext.ReadType.WithDocument:
                         return Instance.GetWithDocument<T[]>(selectionSet, ids);
-                    case UserContext.ReadType.Deep:
-                        break;
                     case UserContext.ReadType.Shallow:
                         return Instance.GetShallow<T[]>(ids);
                 }

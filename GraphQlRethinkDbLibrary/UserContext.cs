@@ -16,8 +16,7 @@ namespace GraphQlRethinkDbLibrary
     {
         public enum ReadType
         {
-            Normal,
-            Deep,
+            WithDocument,
             Shallow
         }
 
@@ -43,7 +42,7 @@ namespace GraphQlRethinkDbLibrary
             }
         }
 
-        public T Get<T>(Id id, ReadType readType = ReadType.Normal) where T : class
+        public T Get<T>(Id id, ReadType readType = ReadType.WithDocument) where T : class
         {
             if (!id.IsIdentifierForType<T>())
             {
@@ -69,12 +68,12 @@ namespace GraphQlRethinkDbLibrary
             return DbContext.Instance.AddDefault(newItem, oldId);
         }
 
-        public T[] Search<T>(SearchObject<T> searchObject, ReadType readType = ReadType.Normal) where T : NodeBase
+        public T[] Search<T>(SearchObject<T> searchObject, ReadType readType = ReadType.WithDocument) where T : NodeBase
         {
             return DbContext.Instance.Search(searchObject, Document, readType);
         }
 
-        public T[] Search<T>(string propertyName, string value, ReadType readType = ReadType.Normal) where T : NodeBase
+        public T[] Search<T>(string propertyName, string value, ReadType readType = ReadType.WithDocument) where T : NodeBase
         {
             var searchObject = new SearchObject<T>().Add(SearchOperationType.Match, propertyName, value);
             return Search(searchObject, readType);

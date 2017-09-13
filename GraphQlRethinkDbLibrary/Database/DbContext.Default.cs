@@ -32,10 +32,8 @@ namespace GraphQlRethinkDbLibrary.Database
 
             switch (readType)
             {
-                case UserContext.ReadType.Normal:
+                case UserContext.ReadType.WithDocument:
                     return GetWithDocument<T>(selectionSet, id);
-                case UserContext.ReadType.Deep:
-                    throw new NotImplementedException();
                 case UserContext.ReadType.Shallow:
                     return GetShallow<T>(id);
                 default:
