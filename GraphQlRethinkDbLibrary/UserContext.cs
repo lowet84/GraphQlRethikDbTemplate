@@ -69,9 +69,15 @@ namespace GraphQlRethinkDbLibrary
             return DbContext.Instance.AddDefault(newItem, oldId);
         }
 
-        public T[] Search<T>(SearchObject<T> searchObject) where T : NodeBase
+        public T[] Search<T>(SearchObject<T> searchObject, ReadType readType = ReadType.Normal) where T : NodeBase
         {
-            return DbContext.Instance.Search(searchObject, Document);
+            return DbContext.Instance.Search(searchObject, Document, readType);
+        }
+
+        public T[] Search<T>(string propertyName, string value, ReadType readType = ReadType.Normal) where T : NodeBase
+        {
+            var searchObject = new SearchObject<T>().Add(SearchOperationType.Match, propertyName, value);
+            return Search(searchObject, readType);
         }
 
         public static GraphQLDocument GetDocument(string query)

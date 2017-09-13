@@ -95,6 +95,23 @@ namespace GraphQlRethinkDbLibrary.Database
             }
         }
 
+        private T GetShallow<T>(Id[] ids) where T : class
+        {
+            var type = typeof(T);
+            var table = GetTable(type);
+            try
+            {
+                var result = table.GetAll(R.Args(ids.Select(d => d.ToString()).ToArray())).CoerceTo("ARRAY")
+                    .Run(_connection) as JArray;
+                var ret = Utils.DeserializeObject(type, result);
+                return ret as T;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         private ReqlExpr Merge(ReqlExpr expr, ImportTreeItem importTree)
         {
             var ret = expr;

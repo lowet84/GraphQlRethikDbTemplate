@@ -8,7 +8,7 @@ using GraphQL.Conventions.Relay;
 using GraphQL.Conventions.Web;
 using Microsoft.AspNetCore.Http;
 
-namespace GraphQlRethinkDbLibrary
+namespace GraphQlRethinkDbLibrary.Handlers
 {
     public interface IGraphQlRethinkDbHandler
     {
@@ -17,15 +17,17 @@ namespace GraphQlRethinkDbLibrary
 
     public class GraphQlRethinkDbHandler<TQuery, TMutation> : IGraphQlRethinkDbHandler
     {
+        public SpecialHandler[] SpecialHandlers { get; }
         private readonly IRequestHandler _requestHandler;
 
-        public static IGraphQlRethinkDbHandler Create(string databaseHost, string databaseName)
+        public static IGraphQlRethinkDbHandler Create(string databaseHost, string databaseName, params SpecialHandler[] specialHandlers)
         {
-            return new GraphQlRethinkDbHandler<TQuery, TMutation>(databaseHost, databaseName);
+            return new GraphQlRethinkDbHandler<TQuery, TMutation>(databaseHost, databaseName, specialHandlers);
         }
 
-        private GraphQlRethinkDbHandler(string databaseHost, string databaseName)
+        private GraphQlRethinkDbHandler(string databaseHost, string databaseName, params SpecialHandler[] specialHandlers)
         {
+            SpecialHandlers = specialHandlers;
             var queryType = typeof(TQuery);
             var mutationType = typeof(TMutation);
 
@@ -49,6 +51,13 @@ namespace GraphQlRethinkDbLibrary
 
         public async Task DeafultHandleRequest(HttpContext context)
         {
+            var specialHandler = SpecialHandlers.FirstOrDefault(d => context.Request.Path.Value.StartsWith(d.Path));
+            if (specialHandler != null)
+            {
+                specialHandler.Action.Invoke(context);
+                return;
+            }
+
             if (string.Compare(context.Request.Method, "OPTIONS", StringComparison.OrdinalIgnoreCase) == 0)
             {
                 context.Response.StatusCode = 200;

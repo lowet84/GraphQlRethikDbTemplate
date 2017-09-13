@@ -1,4 +1,8 @@
-﻿using GraphQlRethinkDbLibrary;
+﻿using System;
+using System.Linq;
+using System.Net.Http;
+using GraphQlRethinkDbLibrary;
+using GraphQlRethinkDbLibrary.Database.Search;
 using GraphQlRethinkDbLibrary.Schema;
 using GraphQlRethinkDbLibrary.Schema.Output;
 using GraphQlRethinkDbTemplate.Schema.Type;
@@ -52,6 +56,26 @@ namespace GraphQlRethinkDbTemplate.Schema
             var newSeries = new Series(oldSeries.Name, Utils.AddOrInitializeArray(oldSeries.Books, book));
             var ret = context.UpdateDefault(newSeries, oldSeries.Id);
             return new DefaultResult<Series>(ret);
+        }
+
+        public DefaultResult<Image> DownloadImage(
+            UserContext context,
+            NonNull<string> imageUrl)
+        {
+            var result = new HttpClient().GetAsync(imageUrl).Result;
+            var contentType = result.Content.Headers.ContentType;
+
+            if (!contentType.MediaType.Contains("image"))
+                return null;
+
+            var existing = context.Search<Image>("Source", imageUrl, UserContext.ReadType.Shallow);
+
+            if (existing?.Length > 0) return new DefaultResult<Image>(existing.Single());
+
+            var data = result.Content.ReadAsByteArrayAsync().Result;
+            var image = new Image(Convert.ToBase64String(data), imageUrl, "image/jpeg");
+            context.AddDefault(image);
+            return new DefaultResult<Image>(image);
         }
     }
 }

@@ -1,9 +1,13 @@
-﻿using GraphQlRethinkDbLibrary;
+﻿using System;
+using GraphQlRethinkDbLibrary;
+using GraphQlRethinkDbLibrary.Handlers;
 using GraphQlRethinkDbTemplate.Schema;
+using GraphQlRethinkDbTemplate.Schema.Type;
+using GraphQL.Conventions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Query = GraphQlRethinkDbTemplate.Schema.Query;
 
 namespace GraphQlRethinkDbTemplate
 {
@@ -13,8 +17,17 @@ namespace GraphQlRethinkDbTemplate
         {
             loggerFactory.AddConsole();
             var handler =
-                GraphQlRethinkDbHandler<Query, Mutation>.Create("localhost", "GraphQlRethinkDbTemplate");
+                GraphQlRethinkDbHandler<Query, Mutation>.Create("localhost", "GraphQlRethinkDbTemplate",
+                new DefaultImageHandler(GetImageString));
             app.Run(handler.DeafultHandleRequest);
+        }
+
+        private static Image GetImageString(Id id)
+        {
+            if (!id.IsIdentifierForType<Image>())
+                throw new Exception("Id is not valid for image type");
+            var image = new UserContext(null).Get<Image>(id, UserContext.ReadType.Shallow);
+            return image;
         }
     }
 }

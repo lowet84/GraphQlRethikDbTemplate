@@ -11,7 +11,8 @@ namespace GraphQlRethinkDbLibrary.Database
 {
     public partial class DbContext
     {
-        public T[] Search<T>(SearchObject<T> searchObject, GraphQLDocument document) where T: NodeBase
+        public T[] Search<T>(SearchObject<T> searchObject, GraphQLDocument document, UserContext.ReadType readType)
+            where T : NodeBase
         {
             var type = typeof(T);
             var selectionSet = GetSelectionSet(document);
@@ -38,13 +39,22 @@ namespace GraphQlRethinkDbLibrary.Database
 
                 JArray result = expr
                     .Map(item => item.G("id"))
-                    .Filter(id=>id.Eq(GetNewestId(id)))
+                    .Filter(id => id.Eq(GetNewestId(id)))
                     .CoerceTo("ARRAY")
                     .Run(_connection);
 
                 var ids = result.Select(d => new Id(d.ToString())).ToArray();
-                var ret = Instance.GetWithDocument<T[]>(selectionSet, ids);
-                return ret;
+                switch (readType)
+                {
+                    case UserContext.ReadType.Normal:
+                        return Instance.GetWithDocument<T[]>(selectionSet, ids);
+                    case UserContext.ReadType.Deep:
+                        break;
+                    case UserContext.ReadType.Shallow:
+                        return Instance.GetShallow<T[]>(ids);
+                }
+
+                throw new NotImplementedException();
             }
             catch (Exception)
             {
