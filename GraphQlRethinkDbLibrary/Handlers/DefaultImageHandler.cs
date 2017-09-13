@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using GraphQL.Conventions;
 using Microsoft.AspNetCore.Http;
 
@@ -14,15 +15,28 @@ namespace GraphQlRethinkDbLibrary.Handlers
         }
 
         public override string Path => "/images/";
-        public override Action<HttpContext> Action => context => ReturnObjectById(context, ProcessImage);
-
-        private async void ProcessImage(HttpContext context, Id id)
+        public override void Process(HttpContext context)
         {
-            var image = GetImageFunction.Invoke(id);
-            context.Response.Headers.Add("Content-Type", image.ContentType);
-            var imageBytes = Convert.FromBase64String(image.ImageData);
-            context.Response.StatusCode = 200;
-            await context.Response.Body.WriteAsync(imageBytes, 0, imageBytes.Length);
+            try
+            {
+                if (string.Compare(context.Request.Method, "GET", StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    var idString = context.Request.Path.Value.Substring(Path.Length);
+                    var id = new Id(idString);
+                    var image = GetImageFunction.Invoke(id);
+                    context.Response.Headers.Add("Content-Type", image.ContentType);
+                    var imageBytes = Convert.FromBase64String(image.ImageData);
+                    context.Response.StatusCode = 200;
+                    context.Response.Body.WriteAsync(imageBytes, 0, imageBytes.Length).Wait();
+                    return;
+                }
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
+            context.Response.StatusCode = 400;
         }
     }
 

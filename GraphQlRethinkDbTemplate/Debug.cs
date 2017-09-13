@@ -28,7 +28,17 @@ namespace GraphQlRethinkDbTemplate
             var audioData = new HttpClient()
                 .GetByteArrayAsync("http://www.podtrac.com/pts/redirect.mp3/podcast.thisamericanlife.org/podcast/625.mp3")
                 .Result;
-            var audio = new Audio(Convert.ToBase64String(audioData), "dummy", "audio/mpeg");
+            var length = audioData.Length;
+            var blockSize = 200000;
+            var audioDataParts = new List<AudioData>();
+            while (audioData.Length > 0)
+            {
+                var dataPart = audioData.Take(blockSize).ToArray();
+                audioData = audioData.Skip(blockSize).ToArray();
+                var part = new AudioData(Convert.ToBase64String(dataPart));
+                audioDataParts.Add(part);
+            }
+            var audio = new Audio(audioDataParts.ToArray(), "dummy", "audio/mpeg", blockSize, length);
 
             var query =
                 @"query{series(id:""#####""){authors{name{fistName, lastName}} name books{id title bookAuthors{author{name{fistName lastName}}}} }}";
@@ -44,6 +54,10 @@ namespace GraphQlRethinkDbTemplate
             userContext.AddDefault(series2);
             userContext.AddDefault(image);
             userContext.AddDefault(audio);
+            foreach (var audioDataPart in audioDataParts)
+            {
+                userContext.AddDefault(audioDataPart);
+            }
             userContext.UpdateDefault(newSeries, series.Id);
 
             var readSeries = userContext.Get<Series>(series.Id);

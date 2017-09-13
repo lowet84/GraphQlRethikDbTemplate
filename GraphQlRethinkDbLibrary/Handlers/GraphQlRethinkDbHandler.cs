@@ -54,7 +54,7 @@ namespace GraphQlRethinkDbLibrary.Handlers
             var specialHandler = SpecialHandlers.FirstOrDefault(d => context.Request.Path.Value.StartsWith(d.Path));
             if (specialHandler != null)
             {
-                specialHandler.Action.Invoke(context);
+                specialHandler.Process(context);
                 return;
             }
 

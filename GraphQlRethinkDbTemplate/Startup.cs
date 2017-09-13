@@ -19,7 +19,7 @@ namespace GraphQlRethinkDbTemplate
             var handler =
                 GraphQlRethinkDbHandler<Query, Mutation>.Create("localhost", "GraphQlRethinkDbTemplate",
                 new DefaultImageHandler(Get<Image>),
-                new DeafultAudioHandler(Get<Audio>));
+                new DeafultAudioHandler(Get<Audio>, Get<AudioData>));
             app.Run(handler.DeafultHandleRequest);
         }
 
