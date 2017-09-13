@@ -18,16 +18,18 @@ namespace GraphQlRethinkDbTemplate
             loggerFactory.AddConsole();
             var handler =
                 GraphQlRethinkDbHandler<Query, Mutation>.Create("localhost", "GraphQlRethinkDbTemplate",
-                new DefaultImageHandler(GetImageString));
+                new DefaultImageHandler(Get<Image>),
+                new DeafultAudioHandler(Get<Audio>));
             app.Run(handler.DeafultHandleRequest);
         }
 
-        private static Image GetImageString(Id id)
+        private static T Get<T>(Id id) where T: class
         {
-            if (!id.IsIdentifierForType<Image>())
-                throw new Exception("Id is not valid for image type");
-            var image = new UserContext(null).Get<Image>(id, UserContext.ReadType.Shallow);
-            return image;
+            var type = typeof(T);
+            if (!id.IsIdentifierForType<T>())
+                throw new Exception($"Id is not valid for type {type.Name}");
+            var item = new UserContext(null).Get<T>(id, UserContext.ReadType.Shallow);
+            return item;
         }
     }
 }

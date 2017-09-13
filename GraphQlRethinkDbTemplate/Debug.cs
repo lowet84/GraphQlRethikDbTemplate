@@ -25,6 +25,11 @@ namespace GraphQlRethinkDbTemplate
                 .Result;
             var image = new Image(Convert.ToBase64String(imageData), "dummy", "image/jpeg");
 
+            var audioData = new HttpClient()
+                .GetByteArrayAsync("http://www.podtrac.com/pts/redirect.mp3/podcast.thisamericanlife.org/podcast/625.mp3")
+                .Result;
+            var audio = new Audio(Convert.ToBase64String(audioData), "dummy", "audio/mpeg");
+
             var query =
                 @"query{series(id:""#####""){authors{name{fistName, lastName}} name books{id title bookAuthors{author{name{fistName lastName}}}} }}";
             query = query.Replace("#####", series.Id.ToString());
@@ -38,6 +43,7 @@ namespace GraphQlRethinkDbTemplate
             userContext.AddDefault(series);
             userContext.AddDefault(series2);
             userContext.AddDefault(image);
+            userContext.AddDefault(audio);
             userContext.UpdateDefault(newSeries, series.Id);
 
             var readSeries = userContext.Get<Series>(series.Id);

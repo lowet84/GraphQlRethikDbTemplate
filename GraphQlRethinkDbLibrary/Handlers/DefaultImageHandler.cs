@@ -6,38 +6,23 @@ namespace GraphQlRethinkDbLibrary.Handlers
 {
     public class DefaultImageHandler : SpecialHandler
     {
-        public Func<Id, IDeafultImage> GetByte64EncodedImageFunction { get; }
+        public Func<Id, IDeafultImage> GetImageFunction { get; }
 
-        public DefaultImageHandler(Func<Id, IDeafultImage> getByte64EncodedImageFunction)
+        public DefaultImageHandler(Func<Id, IDeafultImage> getImageFunction)
         {
-            GetByte64EncodedImageFunction = getByte64EncodedImageFunction;
+            GetImageFunction = getImageFunction;
         }
 
         public override string Path => "/images/";
-        public override Action<HttpContext> Action => ReturnImage;
+        public override Action<HttpContext> Action => context => ReturnObjectById(context, ProcessImage);
 
-        private async void ReturnImage(HttpContext context)
+        private async void ProcessImage(HttpContext context, Id id)
         {
-            try
-            {
-                if (string.Compare(context.Request.Method, "GET", StringComparison.OrdinalIgnoreCase) == 0)
-                {
-                    var idString = context.Request.Path.Value.Substring("/images/".Length);
-                    var id = new Id(idString);
-                    var image = GetByte64EncodedImageFunction.Invoke(id);
-                    context.Response.Headers.Add("Content-Type", image.ContentType);
-                    var imageBytes = Convert.FromBase64String(image.ImageData);
-                    context.Response.StatusCode = 200;
-                    await context.Response.Body.WriteAsync(imageBytes, 0, imageBytes.Length);
-                    return;
-                }
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-
-            context.Response.StatusCode = 400;
+            var image = GetImageFunction.Invoke(id);
+            context.Response.Headers.Add("Content-Type", image.ContentType);
+            var imageBytes = Convert.FromBase64String(image.ImageData);
+            context.Response.StatusCode = 200;
+            await context.Response.Body.WriteAsync(imageBytes, 0, imageBytes.Length);
         }
     }
 

@@ -58,5 +58,12 @@ namespace GraphQlRethinkDbTemplate.Schema
             var images = context.Search(new SearchObject<Image>());
             return Task.FromResult(images);
         }
+
+        [Description("Get all audio")]
+        public Task<Audio[]> AllAudio(UserContext context)
+        {
+            var audios = context.Search(new SearchObject<Audio>());
+            return Task.FromResult(audios);
+        }
     }
 }
