@@ -52,7 +52,6 @@ namespace GraphQlRethinkDbLibrary.Handlers
             var partIndex = index / defaultAudio.BlockSize;
             var partFix = (index % defaultAudio.BlockSize > 0 ? 1 : 0);
             var part = partIndex + partFix;
-            Console.WriteLine($"{partIndex} {partFix}");
             var id = defaultAudio.AudioData[part].Id;
             var data = GetDataFunction(id);
             return data;
