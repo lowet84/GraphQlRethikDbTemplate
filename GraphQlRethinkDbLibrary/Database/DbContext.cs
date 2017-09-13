@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using RethinkDb.Driver;
-using RethinkDb.Driver.Net;
 using RethinkDb.Driver.Net.Clustering;
 
 namespace GraphQlRethinkDbLibrary.Database

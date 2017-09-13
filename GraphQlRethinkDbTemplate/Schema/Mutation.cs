@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net.Http;
 using GraphQlRethinkDbLibrary;
-using GraphQlRethinkDbLibrary.Database.Search;
 using GraphQlRethinkDbLibrary.Schema;
 using GraphQlRethinkDbLibrary.Schema.Output;
 using GraphQlRethinkDbTemplate.Schema.Type;
