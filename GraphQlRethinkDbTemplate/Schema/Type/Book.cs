@@ -1,5 +1,7 @@
-﻿using System.ComponentModel;
+﻿
+
 using GraphQlRethinkDbLibrary.Schema.Types;
+using GraphQL.Conventions;
 
 namespace GraphQlRethinkDbTemplate.Schema.Type
 {

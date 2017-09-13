@@ -51,5 +51,12 @@ namespace GraphQlRethinkDbTemplate.Schema
             var data = context.Search(searchObject);
             return Task.FromResult(data);
         }
+
+        [Description("Get all images")]
+        public Task<Image[]> AllImages(UserContext context)
+        {
+            var images = context.Search(new SearchObject<Image>());
+            return Task.FromResult(images);
+        }
     }
 }
