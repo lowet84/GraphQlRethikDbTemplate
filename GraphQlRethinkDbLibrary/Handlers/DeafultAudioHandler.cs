@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
@@ -34,7 +33,7 @@ namespace GraphQlRethinkDbLibrary.Handlers
                     var id = new Id(idString);
                     var audio = GetAudioFunction.Invoke(id);
                     context.Response.Headers.Add("Content-Type", audio.ContentType);
-                    var result = new VideoStreamResult(index => GetData(index, audio), "audio/mpeg", audio.Length, audio.BlockSize);
+                    var result = new VideoStreamResult(index => GetData(index, audio), "audio/mpeg", audio.Length);
                     result.ExecuteResultAsync(context).Wait();
                     return;
                 }
@@ -57,25 +56,23 @@ namespace GraphQlRethinkDbLibrary.Handlers
             return data;
         }
 
-        public class VideoStreamResult
+        private class VideoStreamResult
         {
             //public Stream FileStream { get; }
-            public Func<long, IDefaultAudioData> GetDataFunction { get; }
+            private Func<long, IDefaultAudioData> GetDataFunction { get; }
 
-            public string ContentType { get; }
+            private string ContentType { get; }
 
-            public int Length { get; }
+            private int Length { get; }
 
             // default buffer size as defined in BufferedStream type
-            private int BufferSize { get; }
             private const string MultipartBoundary = "<qwe123>";
 
-            public VideoStreamResult(Func<long, IDefaultAudioData> getDataFunction, string contentType, int length, int bufferSize)
+            public VideoStreamResult(Func<long, IDefaultAudioData> getDataFunction, string contentType, int length)
             {
                 GetDataFunction = getDataFunction;
                 ContentType = contentType;
                 Length = length;
-                BufferSize = bufferSize;
             }
 
             private static bool IsMultipartRequest(RangeHeaderValue range)
@@ -88,7 +85,7 @@ namespace GraphQlRethinkDbLibrary.Handlers
                 return range?.Ranges != null && range.Ranges.Count > 0;
             }
 
-            protected async Task WriteVideoAsync(HttpResponse response)
+            private async Task WriteVideoAsync(HttpResponse response)
             {
                 var bufferingFeature = response.HttpContext.Features.Get<IHttpBufferingFeature>();
                 bufferingFeature?.DisableResponseBuffering();
