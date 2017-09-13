@@ -1,10 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using GraphQlRethinkDbLibrary;
-using GraphQlRethinkDbLibrary.Database.Search;
-using GraphQlRethinkDbTemplate.Model;
+﻿using System.IO;
 using Microsoft.AspNetCore.Hosting;
 
 namespace GraphQlRethinkDbTemplate
