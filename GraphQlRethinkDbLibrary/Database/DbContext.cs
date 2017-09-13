@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using RethinkDb.Driver;
 using RethinkDb.Driver.Net;
+using RethinkDb.Driver.Net.Clustering;
 
 namespace GraphQlRethinkDbLibrary.Database
 {
@@ -10,7 +14,7 @@ namespace GraphQlRethinkDbLibrary.Database
         private static DbContext _instance;
         internal static DbContext Instance => _instance ?? throw new Exception("DbContext is not initialized");
         private static readonly RethinkDB R = RethinkDB.R;
-        private readonly Connection _connection;
+        private readonly ConnectionPool _connection;
 
         internal static  void Initialize(string databaseUrl, string databaseName)
         {
@@ -25,11 +29,12 @@ namespace GraphQlRethinkDbLibrary.Database
 
         private DbContext(string hostName)
         {
-            Console.WriteLine($"Connecting to database: {hostName}");
-            _connection = R.Connection()
-                .Hostname(hostName)
-                .Port(RethinkDBConstants.DefaultPort)
-                .Timeout(60)
+            var ip = Dns.GetHostAddresses(hostName).First(d=>d.AddressFamily == AddressFamily.InterNetwork);
+            Console.WriteLine($"Connecting to database pool: {hostName} on ip:{ip}");
+            _connection = R.ConnectionPool()
+                .Seed($"{ip}:{RethinkDBConstants.DefaultPort}")
+                .PoolingStrategy(new RoundRobinHostPool())
+                .Discover(true)
                 .Connect();
             CheckAndPopulateIfNeeded();
         }
