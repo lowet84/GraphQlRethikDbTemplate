@@ -59,17 +59,26 @@ namespace GraphQlRethinkDbLibrary.Database
             return GetWithDocument<T[]>(GetSelectionSet(document), ids);
         }
 
-        public void Restore<T>(Id id)
+        public bool Restore<T>(Id id)
         {
             var type = typeof(T);
             if (!id.IsIdentifierForType<T>())
                 throw new Exception($"Id is not valid for type {type.Name}");
+            var exists = GetTable(type).GetAll(id.ToString())
+                .Count()
+                .Eq(1)
+                .RunResult<bool>(_connection);
+            if (!exists)
+            {
+                return false;
+            }
             var chainLink = Chain.CreateChainLink<T>(id, id);
             var result = GetTable(typeof(Chain)).Insert(chainLink).RunResult(_connection);
             if (result.Errors > 0)
             {
                 throw new Exception("Something went wrong");
             }
+            return true;
         }
     }
 }

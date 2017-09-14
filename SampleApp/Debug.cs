@@ -15,6 +15,14 @@ namespace GraphQlRethinkDbTemplate
         {
             //Reset();
             //Delete();
+            //Basic();
+            Clean();
+        }
+
+        private static void Clean()
+        {
+            var context = new UserContext();
+            context.CleanDatabase();
         }
 
         private static void Basic()
@@ -108,9 +116,11 @@ namespace GraphQlRethinkDbTemplate
             var seriesBefore = context.Search<Series>("Name", "Test");
             context.Remove<Book>(book.Id);
             var seriesAfter = context.Search<Series>("Name", "Test");
-            context.Restore<Book>(book.Id);
+            var restored = context.Restore<Book>(book.Id);
             var seriesRestored = context.Search<Series>("Name", "Test");
-
+            context.Remove<Book>(book.Id);
+            context.CleanDatabase();
+            restored = context.Restore<Book>(book.Id);
         }
     }
 }

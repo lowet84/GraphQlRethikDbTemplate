@@ -86,9 +86,9 @@ namespace GraphQlRethinkDbLibrary
             DbContext.Instance.Remove<T>(id);
         }
 
-        public void Restore<T>(Id id)
+        public bool Restore<T>(Id id)
         {
-            DbContext.Instance.Restore<T>(id);
+            return DbContext.Instance.Restore<T>(id);
         }
 
         public static GraphQLDocument GetDocument(string query)
@@ -103,6 +103,11 @@ namespace GraphQlRethinkDbLibrary
         public Task FetchData(CancellationToken token)
         {
             return Task.CompletedTask;
+        }
+
+        public void CleanDatabase()
+        {
+            DbContext.Instance.Clean();
         }
 
         public void Reset()
