@@ -25,6 +25,7 @@ namespace GraphQlRethinkDbTemplate
                 .Result;
             var image = new Image(Convert.ToBase64String(imageData), "dummy", "image/jpeg");
 
+            var audioFile = new AudioFile(@"C:\temp\BookTest\test\sommar_i_p1_20170708_0700_866b24.mp3");
             var audioData = new HttpClient()
                 .GetByteArrayAsync("http://www.podtrac.com/pts/redirect.mp3/podcast.thisamericanlife.org/podcast/625.mp3")
                 .Result;
@@ -46,6 +47,7 @@ namespace GraphQlRethinkDbTemplate
             var userContext = new UserContext(query, hostName, "GraphQlRethinkDbTemplate");
             userContext.Reset();
 
+            userContext.AddDefault(audioFile);
             userContext.AddDefault(author);
             userContext.UpdateDefault(author2, author.Id);
             userContext.AddDefault(book);

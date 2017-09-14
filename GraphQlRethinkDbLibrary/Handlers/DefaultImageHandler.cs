@@ -25,7 +25,7 @@ namespace GraphQlRethinkDbLibrary.Handlers
                     var id = new Id(idString);
                     var image = GetImageFunction.Invoke(id);
                     context.Response.Headers.Add("Content-Type", image.ContentType);
-                    var imageBytes = Convert.FromBase64String(image.ImageData);
+                    var imageBytes = image.ImageData;
                     context.Response.StatusCode = 200;
                     context.Response.Body.WriteAsync(imageBytes, 0, imageBytes.Length).Wait();
                     return;
@@ -43,6 +43,7 @@ namespace GraphQlRethinkDbLibrary.Handlers
     public interface IDeafultImage
     {
         string ContentType { get; }
-        string ImageData { get; }
+        [Ignore]
+        byte[] ImageData { get; }
     }
 }

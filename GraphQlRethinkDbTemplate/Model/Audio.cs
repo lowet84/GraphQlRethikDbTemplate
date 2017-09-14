@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using GraphQlRethinkDbLibrary.Handlers;
 using GraphQlRethinkDbLibrary.Schema.Types;
 using Newtonsoft.Json;
@@ -20,14 +17,13 @@ namespace GraphQlRethinkDbTemplate.Model
         }
 
         public string ContentType { get; }
+
         public int BlockSize { get; }
 
-        public int Length { get; }
+        public long Length { get; }
 
         public AudioData[] AudioData { get; }
 
         public string Source { get; }
-
-        IDefaultAudioData[] IDefaultAudio.AudioData => AudioData.Cast<IDefaultAudioData>().ToArray();
     }
 }

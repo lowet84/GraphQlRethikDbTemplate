@@ -40,6 +40,8 @@ namespace GraphQlRethinkDbLibrary.Schema
             var arrayProperties = item.GetType().GetProperties().Where(d => d.PropertyType.IsArray).ToList();
             foreach (var arrayProperty in arrayProperties)
             {
+                if (arrayProperty.GetCustomAttribute<JsonIgnoreAttribute>() != null)
+                    continue;
                 var value = arrayProperty.GetValue(item);
                 if (value == null)
                 {

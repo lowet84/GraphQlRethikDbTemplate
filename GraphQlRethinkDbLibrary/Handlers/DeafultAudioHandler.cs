@@ -12,11 +12,11 @@ namespace GraphQlRethinkDbLibrary.Handlers
     public class DeafultAudioHandler : SpecialHandler
     {
         public Func<Id, IDefaultAudio> GetAudioFunction { get; }
-        public Func<Id, IDefaultAudioData> GetDataFunction { get; }
+        public Func<Id, int, byte[]> GetDataFunction { get; }
 
         public DeafultAudioHandler(
             Func<Id, IDefaultAudio> getAudioFunction,
-            Func<Id, IDefaultAudioData> getDataFunction)
+            Func<Id, int, byte[]> getDataFunction)
         {
             GetAudioFunction = getAudioFunction;
             GetDataFunction = getDataFunction;
@@ -40,35 +40,32 @@ namespace GraphQlRethinkDbLibrary.Handlers
             }
             catch (Exception)
             {
-                // ignored
+                return;
             }
 
             context.Response.StatusCode = 400;
         }
 
-        private IDefaultAudioData GetData(long index, IDefaultAudio defaultAudio)
+        private byte[] GetData(long index, IDefaultAudio defaultAudio)
         {
-            var partIndex = index / defaultAudio.BlockSize;
-            var partFix = (index % defaultAudio.BlockSize > 0 ? 1 : 0);
-            var part = partIndex + partFix;
-            var id = defaultAudio.AudioData[part].Id;
-            var data = GetDataFunction(id);
+            var part = index / defaultAudio.BlockSize;
+            var data = GetDataFunction(defaultAudio.Id, Convert.ToInt32(part));
             return data;
         }
 
         private class VideoStreamResult
         {
             //public Stream FileStream { get; }
-            private Func<long, IDefaultAudioData> GetDataFunction { get; }
+            private Func<long, byte[]> GetDataFunction { get; }
 
             private string ContentType { get; }
 
-            private int Length { get; }
+            private long Length { get; }
 
             // default buffer size as defined in BufferedStream type
             private const string MultipartBoundary = "<qwe123>";
 
-            public VideoStreamResult(Func<long, IDefaultAudioData> getDataFunction, string contentType, int length)
+            public VideoStreamResult(Func<long, byte[]> getDataFunction, string contentType, long length)
             {
                 GetDataFunction = getDataFunction;
                 ContentType = contentType;
@@ -148,7 +145,7 @@ namespace GraphQlRethinkDbLibrary.Handlers
 
                 var totalToSend = endIndex - startIndex;
 
-                var bytesRemaining = totalToSend + 1;
+                var bytesRemaining = totalToSend;
                 response.ContentLength = bytesRemaining;
 
                 var currentIndex = startIndex;
@@ -156,13 +153,13 @@ namespace GraphQlRethinkDbLibrary.Handlers
                 {
                     try
                     {
-                        var buffer = Convert.FromBase64String(GetDataFunction(currentIndex).Data);
+                        var buffer = GetDataFunction(currentIndex);
+                        response.Headers.Remove("Content-Length");
+                        response.Headers.Add("Content-Length",buffer.Length.ToString());
                         currentIndex += buffer.Length;
-                        var count = bytesRemaining - buffer.Length;
-
                         await response.Body.WriteAsync(buffer, 0, buffer.Length);
 
-                        bytesRemaining -= count;
+                        bytesRemaining -= buffer.Length;
                     }
                     catch (IndexOutOfRangeException)
                     {
@@ -240,15 +237,9 @@ namespace GraphQlRethinkDbLibrary.Handlers
 
     public interface IDefaultAudio
     {
+        Id Id { get; }
         string ContentType { get; }
         int BlockSize { get; }
-        IDefaultAudioData[] AudioData { get; }
-        int Length { get; }
-    }
-
-    public interface IDefaultAudioData
-    {
-        Id Id { get; }
-        string Data { get; }
+        long Length { get; }
     }
 }

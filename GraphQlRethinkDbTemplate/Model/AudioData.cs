@@ -4,10 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using GraphQlRethinkDbLibrary.Handlers;
 using GraphQlRethinkDbLibrary.Schema.Types;
+using GraphQL.Conventions;
 
 namespace GraphQlRethinkDbTemplate.Model
 {
-    public class AudioData : NodeBase<AudioData>, IDefaultAudioData
+    public class AudioData : NodeBase<AudioData>
     {
         public AudioData(string data, int length)
         {
@@ -16,6 +17,7 @@ namespace GraphQlRethinkDbTemplate.Model
         }
 
         public string Data { get; }
+
         public int Length { get; }
     }
 }

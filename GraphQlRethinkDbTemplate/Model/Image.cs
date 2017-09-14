@@ -1,4 +1,5 @@
-﻿using GraphQlRethinkDbLibrary.Handlers;
+﻿using System;
+using GraphQlRethinkDbLibrary.Handlers;
 using GraphQlRethinkDbLibrary.Schema.Types;
 
 namespace GraphQlRethinkDbTemplate.Model
@@ -14,6 +15,7 @@ namespace GraphQlRethinkDbTemplate.Model
 
         public string ContentType { get; }
         public string ImageData { get; }
+        byte[] IDeafultImage.ImageData => Convert.FromBase64String(ImageData);
         public string Source { get; }
     }
 }
