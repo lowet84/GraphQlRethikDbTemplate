@@ -1,6 +1,6 @@
 ﻿using System;
 using GraphQlRethinkDbLibrary.Database;
-using GraphQlRethinkDbLibrary.Schema.Types.Converters;
+using GraphQlRethinkDbLibrary.Schema.Converters;
 using GraphQL.Conventions;
 using Newtonsoft.Json;
 

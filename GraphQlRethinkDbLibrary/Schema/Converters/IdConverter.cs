@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace GraphQlRethinkDbLibrary.Schema.Types.Converters
+namespace GraphQlRethinkDbLibrary.Schema.Converters
 {
     internal class IdConverter : JsonConverter
     {

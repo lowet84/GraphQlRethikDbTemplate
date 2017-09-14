@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Threading.Tasks;
 using GraphQlRethinkDbLibrary;
 using GraphQlRethinkDbLibrary.Database.Search;
 using GraphQlRethinkDbTemplate.Model;

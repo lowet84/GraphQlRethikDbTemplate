@@ -6,12 +6,11 @@
 
   <ItemGroup>
     <Compile Remove="Database\DataObjects\**" />
+    <Compile Remove="Schema\Input\**" />
     <EmbeddedResource Remove="Database\DataObjects\**" />
+    <EmbeddedResource Remove="Schema\Input\**" />
     <None Remove="Database\DataObjects\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Schema\Input\" />
+    <None Remove="Schema\Input\**" />
   </ItemGroup>
 
   <ItemGroup>

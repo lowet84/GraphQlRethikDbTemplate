@@ -1,10 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using GraphQlRethinkDbLibrary;
 using GraphQlRethinkDbLibrary.Handlers;
-using GraphQlRethinkDbLibrary.Schema;
 using GraphQlRethinkDbTemplate.Model;
 using GraphQlRethinkDbTemplate.Schema;
 using GraphQL.Conventions;

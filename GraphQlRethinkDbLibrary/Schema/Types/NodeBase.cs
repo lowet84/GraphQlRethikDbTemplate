@@ -1,4 +1,4 @@
-﻿using GraphQlRethinkDbLibrary.Schema.Types.Converters;
+﻿using GraphQlRethinkDbLibrary.Schema.Converters;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
 using Newtonsoft.Json;
