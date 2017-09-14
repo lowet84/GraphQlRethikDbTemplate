@@ -16,7 +16,7 @@ namespace GraphQlRethinkDbTemplate
             //Reset();
             //Delete();
             //Basic();
-            Clean();
+            //Clean();
         }
 
         private static void Clean()
