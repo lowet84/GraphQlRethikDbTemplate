@@ -9,13 +9,17 @@ namespace GraphQlRethinkDbLibrary.Schema.Types
     [Description("The chain")]
     public class Chain : NodeBase<Chain>
     {
-        public static Chain CreateChainLink<T>(Id currentId, Id? oldId = null)
+        public static Chain CreateChainLink<T>(Id? currentId, Id? oldId = null)
         {
             var type = typeof(T);
-            if (!currentId.IsIdentifierForType<T>())
+            if (currentId!=null && !currentId.GetValueOrDefault().IsIdentifierForType<T>())
                 throw new ArgumentException($"currentId is not id of type {type.Name}");
             if (oldId != null && !oldId.GetValueOrDefault().IsIdentifierForType<T>())
                 throw new ArgumentException($"oldId is not id of type {type.Name}");
+            if (currentId == null && oldId == null)
+            {
+                throw new ArgumentException("Both current and old is cannot be null at the same time");
+            }
 
             Id linkId;
             long version = 0;
@@ -31,24 +35,20 @@ namespace GraphQlRethinkDbLibrary.Schema.Types
                 version = existingChain.ChainVersion + 1;
             }
 
-            return new Chain(currentId, oldId, linkId, version);
+            return new Chain(currentId, linkId, version);
         }
 
         [JsonConverter(typeof(IdConverter))]
-        public Id CurrentId { get; }
-
-        [JsonConverter(typeof(IdConverter))]
-        public Id? OldId { get; }
+        public Id? CurrentId { get; }
 
         [JsonConverter(typeof(IdConverter))]
         public Id LinkId { get; }
 
         public long ChainVersion { get; }
 
-        private Chain(Id currentId, Id? oldId, Id linkId, long chainVersion)
+        private Chain(Id? currentId, Id linkId, long chainVersion)
         {
             CurrentId = currentId;
-            OldId = oldId;
             LinkId = linkId;
             ChainVersion = chainVersion;
         }

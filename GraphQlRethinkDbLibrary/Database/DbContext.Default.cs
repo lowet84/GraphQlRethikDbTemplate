@@ -41,9 +41,35 @@ namespace GraphQlRethinkDbLibrary.Database
             }
         }
 
+        public void Remove<T>(Id id)
+        {
+            var type = typeof(T);
+            if (!id.IsIdentifierForType<T>())
+                throw new Exception($"Id is not valid for type {type.Name}");
+            var chainLink = Chain.CreateChainLink<T>(null, id);
+            var result = GetTable(typeof(Chain)).Insert(chainLink).RunResult(_connection);
+            if (result.Errors > 0)
+            {
+                throw new Exception("Something went wrong");
+            }
+        }
+
         public T[] GetArrayByIdDefault<T>(Id[] ids, GraphQLDocument document)
         {
             return GetWithDocument<T[]>(GetSelectionSet(document), ids);
+        }
+
+        public void Restore<T>(Id id)
+        {
+            var type = typeof(T);
+            if (!id.IsIdentifierForType<T>())
+                throw new Exception($"Id is not valid for type {type.Name}");
+            var chainLink = Chain.CreateChainLink<T>(id, id);
+            var result = GetTable(typeof(Chain)).Insert(chainLink).RunResult(_connection);
+            if (result.Errors > 0)
+            {
+                throw new Exception("Something went wrong");
+            }
         }
     }
 }

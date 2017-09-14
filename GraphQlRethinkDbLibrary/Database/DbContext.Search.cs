@@ -15,7 +15,6 @@ namespace GraphQlRethinkDbLibrary.Database
             where T : NodeBase
         {
             var type = typeof(T);
-            var selectionSet = GetSelectionSet(document);
             try
             {
                 ReqlExpr expr = GetTable(type);
@@ -47,7 +46,7 @@ namespace GraphQlRethinkDbLibrary.Database
                 switch (readType)
                 {
                     case UserContext.ReadType.WithDocument:
-                        return Instance.GetWithDocument<T[]>(selectionSet, ids);
+                        return Instance.GetWithDocument<T[]>(GetSelectionSet(document), ids);
                     case UserContext.ReadType.Shallow:
                         return Instance.GetShallow<T[]>(ids);
                 }

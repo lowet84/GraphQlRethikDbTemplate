@@ -17,7 +17,7 @@ namespace GraphQlRethinkDbTemplate
                 .UseStartup<Startup>()
                 .UseUrls("http://*:7000")
                 .Build();
-            //Debug.Init();
+            Debug.Run();
             host.Run();
         }
     }

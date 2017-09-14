@@ -22,6 +22,8 @@ namespace GraphQlRethinkDbLibrary
 
         public GraphQLDocument Document { get; }
 
+        public UserContext() : this(null) { }
+
         public UserContext(string body) : this(body, null, null) { }
 
         public UserContext(string body, string databaseHostName, string databaseName)
@@ -77,6 +79,16 @@ namespace GraphQlRethinkDbLibrary
         {
             var searchObject = new SearchObject<T>().Add(SearchOperationType.Match, propertyName, value);
             return Search(searchObject, readType);
+        }
+
+        public void Remove<T>(Id id)
+        {
+            DbContext.Instance.Remove<T>(id);
+        }
+
+        public void Restore<T>(Id id)
+        {
+            DbContext.Instance.Restore<T>(id);
         }
 
         public static GraphQLDocument GetDocument(string query)

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using GraphQlRethinkDbLibrary.Attributes;
 using GraphQlRethinkDbLibrary.Schema;
+using GraphQL;
 using GraphQL.Conventions;
 using GraphQLParser.AST;
 using Newtonsoft.Json;
@@ -43,9 +44,9 @@ namespace GraphQlRethinkDbLibrary.Database
             try
             {
                 var result = type.IsArray
-                    ? (JToken) GetFromDb<T>(id, hashMap)
+                    ? (JToken)GetFromDb<T>(id, hashMap)
                     : GetFromDb<T>(id.First(), hashMap);
-                
+
                 var ret = Utils.DeserializeObject(typeof(T), result);
                 return ret as T;
             }
@@ -60,9 +61,9 @@ namespace GraphQlRethinkDbLibrary.Database
             var importTree = GetImportTree(typeof(T), hashMap, null);
             var idStrings = ids.Select(d => d.ToString()).ToArray();
             var table = GetTable(typeof(T));
-            ReqlExpr get = table.GetAll(R.Args(idStrings));
-            get = get.Map(item=>Merge(item, importTree));
-            get = get.Map(item=>item.Pluck(hashMap));
+            ReqlExpr get = table.GetAll(R.Args(idStrings.Map(id => GetNewestId(id))));
+            get = get.Map(item => Merge(item, importTree));
+            get = get.Map(item => item.Pluck(hashMap));
             var result = get.CoerceTo("ARRAY").Run(_connection) as JArray;
             return result;
         }
@@ -84,7 +85,7 @@ namespace GraphQlRethinkDbLibrary.Database
             var table = GetTable(typeof(T));
             try
             {
-                var result = table.Get(id.ToString())
+                var result = table.Get(GetNewestId(id.ToString()))
                     .Run(_connection) as JObject;
                 var ret = Utils.DeserializeObject(typeof(T), result);
                 return ret as T;
@@ -101,7 +102,7 @@ namespace GraphQlRethinkDbLibrary.Database
             var table = GetTable(type);
             try
             {
-                var result = table.GetAll(R.Args(ids.Select(d => d.ToString()).ToArray())).CoerceTo("ARRAY")
+                var result = table.GetAll(R.Args(ids.Select(d => d.ToString()).Map(id => GetNewestId(id)).ToArray())).CoerceTo("ARRAY")
                     .Run(_connection) as JArray;
                 var ret = Utils.DeserializeObject(type, result);
                 return ret as T;
@@ -139,7 +140,10 @@ namespace GraphQlRethinkDbLibrary.Database
         {
             // Get array of items from other table by key
             if (importItem.IsArray && importItem.NodeBase)
-                return importItem.Table.GetAll(R.Args(item.G(importItem.PropertyName).Map(GetNewestId)));
+                return importItem.Table.GetAll(R.Args(
+                    item.G(importItem.PropertyName)
+                    .Map(GetNewestId)
+                    .Filter(key => key != null)));
             // Get single item from other table by key
             if (importItem.NodeBase)
                 return importItem.Table.Get(GetNewestId(item.G(importItem.PropertyName)));
