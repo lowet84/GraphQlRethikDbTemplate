@@ -1,10 +1,13 @@
 ﻿using System.IO;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Hosting;
 
 namespace GraphQlRethinkDbTemplate
 {
     public class Program
     {
+        public const string DatabaseName = "RethinkQlSample";
+
         public static void Main(string[] args)
         {
             var host = new WebHostBuilder()

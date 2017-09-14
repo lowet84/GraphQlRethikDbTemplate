@@ -47,7 +47,7 @@ namespace GraphQlRethinkDbTemplate
                 @"query{series(id:""#####""){authors{name{fistName, lastName}} name books{id title bookAuthors{author{name{fistName lastName}}}} }}";
             query = query.Replace("#####", series.Id.ToString());
             var hostName = Environment.GetEnvironmentVariable("DATABASE");
-            var userContext = new UserContext(query, hostName, "GraphQlRethinkDbTemplate");
+            var userContext = new UserContext(query, hostName, Program.DatabaseName);
 
 
             userContext.Reset();
