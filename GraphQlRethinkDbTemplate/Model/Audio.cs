@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using GraphQlRethinkDbLibrary.Handlers;
 using GraphQlRethinkDbLibrary.Schema.Types;
-using Newtonsoft.Json;
 
 namespace GraphQlRethinkDbTemplate.Model
 {
@@ -10,7 +9,7 @@ namespace GraphQlRethinkDbTemplate.Model
         public Audio(AudioData[] audioData, string source, string contentType, int blockSize)
         {
             ContentType = contentType;
-            AudioData = audioData;
+            AudioDataParts = audioData;
             BlockSize = blockSize;
             Source = source;
             Length = audioData.Sum(d => d.Length);
@@ -22,8 +21,22 @@ namespace GraphQlRethinkDbTemplate.Model
 
         public long Length { get; }
 
-        public AudioData[] AudioData { get; }
+        public AudioData[] AudioDataParts { get; }
 
         public string Source { get; }
+
+
+        public class AudioData : NodeBase<AudioData>
+        {
+            public AudioData(string data, int length)
+            {
+                Data = data;
+                Length = length;
+            }
+
+            public string Data { get; }
+
+            public int Length { get; }
+        }
     }
 }

@@ -59,6 +59,13 @@ namespace GraphQlRethinkDbTemplate.Schema
             return Task.FromResult(images);
         }
 
+        [Description("Get all image files")]
+        public Task<ImageFile[]> AllImageFiles(UserContext context)
+        {
+            var images = context.Search(new SearchObject<ImageFile>());
+            return Task.FromResult(images);
+        }
+
         [Description("Get all audio")]
         public Task<Audio[]> AllAudio(UserContext context)
         {

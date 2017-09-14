@@ -7,9 +7,9 @@ namespace GraphQlRethinkDbLibrary.Handlers
 {
     public class DefaultImageHandler : SpecialHandler
     {
-        public Func<Id, IDeafultImage> GetImageFunction { get; }
+        public Func<Id, IDefaultImage> GetImageFunction { get; }
 
-        public DefaultImageHandler(Func<Id, IDeafultImage> getImageFunction)
+        public DefaultImageHandler(Func<Id, IDefaultImage> getImageFunction)
         {
             GetImageFunction = getImageFunction;
         }
@@ -40,7 +40,7 @@ namespace GraphQlRethinkDbLibrary.Handlers
         }
     }
 
-    public interface IDeafultImage
+    public interface IDefaultImage
     {
         string ContentType { get; }
         [Ignore]

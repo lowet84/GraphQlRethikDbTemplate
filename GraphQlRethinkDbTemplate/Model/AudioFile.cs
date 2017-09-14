@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IO;
 using GraphQlRethinkDbLibrary.Handlers;
-using GraphQlRethinkDbLibrary.Schema;
 using GraphQlRethinkDbLibrary.Schema.Types;
-using GraphQL.Conventions;
 using Newtonsoft.Json;
 
 namespace GraphQlRethinkDbTemplate.Model

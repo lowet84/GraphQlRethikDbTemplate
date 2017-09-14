@@ -4,7 +4,7 @@ using GraphQlRethinkDbLibrary.Schema.Types;
 
 namespace GraphQlRethinkDbTemplate.Model
 {
-    public class Image : NodeBase<Image>, IDeafultImage
+    public class Image : NodeBase<Image>, IDefaultImage
     {
         public Image(string imageData, string source, string contentType)
         {
@@ -15,7 +15,7 @@ namespace GraphQlRethinkDbTemplate.Model
 
         public string ContentType { get; }
         public string ImageData { get; }
-        byte[] IDeafultImage.ImageData => Convert.FromBase64String(ImageData);
+        byte[] IDefaultImage.ImageData => Convert.FromBase64String(ImageData);
         public string Source { get; }
     }
 }
