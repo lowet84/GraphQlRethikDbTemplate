@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using GraphQlRethinkDbLibrary;
 using GraphQlRethinkDbLibrary.Database.Search;
+using GraphQlRethinkDbLibrary.Schema.Types;
 using GraphQlRethinkDbTemplate.Model;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
@@ -44,7 +47,7 @@ namespace GraphQlRethinkDbTemplate.Schema
         [Description("Search for series containing a specific book")]
         public Task<Series[]> SearchSeriesWithBook(UserContext context, Id bookId)
         {
-            if(!bookId.IsIdentifierForType<Book>())
+            if (!bookId.IsIdentifierForType<Book>())
                 throw new ArgumentException("Id is not correct for type: Book");
             var searchObject = new SearchObject<Series>()
                 .Add(SearchOperationType.AnyEquals, "Books", bookId.ToString());
@@ -53,31 +56,39 @@ namespace GraphQlRethinkDbTemplate.Schema
         }
 
         [Description("Get all images")]
-        public Task<Image[]> AllImages(UserContext context)
+        public Task<Node[]> AllImageIds(UserContext context)
         {
             var images = context.Search(new SearchObject<Image>());
-            return Task.FromResult(images);
-        }
-
-        [Description("Get all image files")]
-        public Task<ImageFile[]> AllImageFiles(UserContext context)
-        {
-            var images = context.Search(new SearchObject<ImageFile>());
-            return Task.FromResult(images);
+            var imageFiles = context.Search(new SearchObject<ImageFile>());
+            return Task.FromResult(GetNodes(images, imageFiles));
         }
 
         [Description("Get all audio")]
-        public Task<Audio[]> AllAudio(UserContext context)
+        public Task<Node[]> AllAudio(UserContext context)
         {
             var audios = context.Search(new SearchObject<Audio>());
-            return Task.FromResult(audios);
+            var audioFiles = context.Search(new SearchObject<AudioFile>());
+            return Task.FromResult(GetNodes(audios, audioFiles));
         }
 
-        [Description("Get all audio files")]
-        public Task<AudioFile[]> AllAudioFiles(UserContext context)
+        private Node[] GetNodes(params IEnumerable<INode>[] collections)
         {
-            var audios = context.Search(new SearchObject<AudioFile>());
-            return Task.FromResult(audios);
+            var ret = new List<Node>();
+            foreach (var collection in collections)
+            {
+                ret.AddRange(collection.Select(d => new Node(d)));
+            }
+            return ret.ToArray();
+        }
+
+        public class Node
+        {
+            public Node(INode nodeBase)
+            {
+                Id = nodeBase.Id;
+            }
+
+            public Id Id { get; }
         }
     }
 }

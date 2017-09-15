@@ -10,24 +10,12 @@ using Microsoft.AspNetCore.Http;
 
 namespace GraphQlRethinkDbLibrary.Handlers
 {
-    public interface IGraphQlRethinkDbHandler
+    public abstract class GraphQlDefaultHandler<TQuery, TMutation> : SpecialHandler
     {
-        Task DeafultHandleRequest(HttpContext context);
-    }
-
-    public class GraphQlRethinkDbHandler<TQuery, TMutation> : IGraphQlRethinkDbHandler
-    {
-        public SpecialHandler[] SpecialHandlers { get; }
         private readonly IRequestHandler _requestHandler;
 
-        public static IGraphQlRethinkDbHandler Create(string databaseHost, string databaseName, params SpecialHandler[] specialHandlers)
+        protected GraphQlDefaultHandler()
         {
-            return new GraphQlRethinkDbHandler<TQuery, TMutation>(databaseHost, databaseName, specialHandlers);
-        }
-
-        private GraphQlRethinkDbHandler(string databaseHost, string databaseName, params SpecialHandler[] specialHandlers)
-        {
-            SpecialHandlers = specialHandlers;
             var queryType = typeof(TQuery);
             var mutationType = typeof(TMutation);
 
@@ -42,22 +30,24 @@ namespace GraphQlRethinkDbLibrary.Handlers
                 throw new Exception("Mutation must have attribute [ImplementViewer(OperationType.Mutation)]");
             }
 
-            new UserContext(null, databaseHost, databaseName);
             _requestHandler = RequestHandler
                 .New()
-                .WithQueryAndMutation<TQuery, TMutation>()
+                .WithQuery(queryType)
+                .WithMutation(mutationType)
                 .Generate();
         }
 
-        public async Task DeafultHandleRequest(HttpContext context)
+        private bool MatchesOperationType(ImplementViewerAttribute attribute, OperationType operationType)
         {
-            var specialHandler = SpecialHandlers.FirstOrDefault(d => context.Request.Path.Value.StartsWith(d.Path));
-            if (specialHandler != null)
-            {
-                specialHandler.Process(context);
-                return;
-            }
+            var attributeOperationType = Utils.GetFields(typeof(ImplementViewerAttribute)).First(d => d.Name == "_operationType")
+                .GetValue(attribute) as OperationType?;
+            return attributeOperationType == operationType;
+        }
 
+        public override string Path => "/api";
+
+        public override async Task Process(HttpContext context)
+        {
             if (string.Compare(context.Request.Method, "OPTIONS", StringComparison.OrdinalIgnoreCase) == 0)
             {
                 context.Response.StatusCode = 200;
@@ -78,13 +68,6 @@ namespace GraphQlRethinkDbLibrary.Handlers
             context.Response.Headers.Add("Content-Type", "application/json; charset=utf-8");
             context.Response.StatusCode = result.Errors?.Count > 0 ? 400 : 200;
             await context.Response.WriteAsync(result.Body);
-        }
-
-        private bool MatchesOperationType(ImplementViewerAttribute attribute, OperationType operationType)
-        {
-            var attributeOperationType = Utils.GetFields(typeof(ImplementViewerAttribute)).First(d => d.Name == "_operationType")
-                .GetValue(attribute) as OperationType?;
-            return attributeOperationType == operationType;
         }
     }
 }

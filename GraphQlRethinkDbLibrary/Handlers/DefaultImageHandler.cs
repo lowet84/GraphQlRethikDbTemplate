@@ -1,20 +1,16 @@
 ﻿using System;
+using System.Threading.Tasks;
 using GraphQL.Conventions;
 using Microsoft.AspNetCore.Http;
 
 namespace GraphQlRethinkDbLibrary.Handlers
 {
-    public class DefaultImageHandler : SpecialHandler
+    public abstract class DefaultImageHandler : SpecialHandler
     {
-        public Func<Id, IDefaultImage> GetImageFunction { get; }
-
-        public DefaultImageHandler(Func<Id, IDefaultImage> getImageFunction)
-        {
-            GetImageFunction = getImageFunction;
-        }
+        public abstract IDefaultImage GetImage(Id id);
 
         public override string Path => "/images/";
-        public override void Process(HttpContext context)
+        public override async Task Process(HttpContext context)
         {
             try
             {
@@ -22,11 +18,11 @@ namespace GraphQlRethinkDbLibrary.Handlers
                 {
                     var idString = context.Request.Path.Value.Substring(Path.Length);
                     var id = new Id(idString);
-                    var image = GetImageFunction.Invoke(id);
+                    var image = GetImage(id);
                     context.Response.Headers.Add("Content-Type", image.ContentType);
                     var imageBytes = image.ImageData;
                     context.Response.StatusCode = 200;
-                    context.Response.Body.WriteAsync(imageBytes, 0, imageBytes.Length).Wait();
+                    await context.Response.Body.WriteAsync(imageBytes, 0, imageBytes.Length);
                     return;
                 }
             }

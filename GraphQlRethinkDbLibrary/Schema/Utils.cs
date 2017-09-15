@@ -22,7 +22,7 @@ namespace GraphQlRethinkDbLibrary.Schema
             | BindingFlags.SetField
             | BindingFlags.NonPublic;
 
-        public static bool UsesDeafultDbRead(this Type type)
+        public static bool UsesDefaultDbRead(this Type type)
         {
             if (!type.IsNodeBase() || type.IsAbstract)
                 return false;

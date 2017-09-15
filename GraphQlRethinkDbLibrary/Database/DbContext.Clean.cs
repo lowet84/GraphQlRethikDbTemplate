@@ -1,9 +1,6 @@
 ﻿using System.Linq;
 using System.Reflection;
 using GraphQlRethinkDbLibrary.Schema;
-using GraphQlRethinkDbLibrary.Schema.Types;
-using GraphQL.Conventions;
-using Newtonsoft.Json.Linq;
 using RethinkDb.Driver.Net;
 
 namespace GraphQlRethinkDbLibrary.Database
@@ -14,7 +11,7 @@ namespace GraphQlRethinkDbLibrary.Database
         {
             var types = Assembly.GetEntryAssembly()
                 .GetTypes()
-                .Where(type => type.UsesDeafultDbRead());
+                .Where(type => type.UsesDefaultDbRead());
 
             foreach (var type in types)
             {

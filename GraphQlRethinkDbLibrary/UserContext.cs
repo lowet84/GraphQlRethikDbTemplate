@@ -26,10 +26,10 @@ namespace GraphQlRethinkDbLibrary
 
         public UserContext(string body) : this(body, null, null) { }
 
-        public UserContext(string body, string databaseHostName, string databaseName)
+        public UserContext(string body, DatabaseUrl databaseUrl, DatabaseName databaseName)
         {
             if (!DbContext.Initalized)
-                DbContext.Initialize(databaseHostName, databaseName);
+                DbContext.Initialize(databaseUrl.Url, databaseName.Name);
 
             if (string.IsNullOrEmpty(body)) return;
 
@@ -52,7 +52,7 @@ namespace GraphQlRethinkDbLibrary
                 throw new ArgumentException($"Id type does not match generic type {type.Name}.");
             }
 
-            if (typeof(T).UsesDeafultDbRead())
+            if (typeof(T).UsesDefaultDbRead())
             {
                 var data = DbContext.Instance.ReadByIdDefault<T>(id, readType, Document);
                 return data;

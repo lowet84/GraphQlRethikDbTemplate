@@ -1,6 +1,7 @@
 ﻿using System;
 using GraphQlRethinkDbLibrary.Handlers;
 using GraphQlRethinkDbLibrary.Schema.Types;
+using GraphQL.Conventions;
 
 namespace GraphQlRethinkDbTemplate.Model
 {
@@ -17,5 +18,27 @@ namespace GraphQlRethinkDbTemplate.Model
         public string ImageData { get; }
         byte[] IDefaultImage.ImageData => Convert.FromBase64String(ImageData);
         public string Source { get; }
+    }
+
+    public class ImageFile : NodeBase<ImageFile>
+    {
+        public string FileName { get; }
+
+        public ImageFile(string fileName)
+        {
+            FileName = fileName;
+        }
+
+        public class ImageFileData : IDefaultImage
+        {
+            public ImageFileData(string contentType, byte[] imageData)
+            {
+                ContentType = contentType;
+                ImageData = imageData;
+            }
+
+            public string ContentType { get; }
+            public byte[] ImageData { get; }
+        }
     }
 }

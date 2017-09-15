@@ -9,21 +9,13 @@ using Microsoft.AspNetCore.Http.Features;
 
 namespace GraphQlRethinkDbLibrary.Handlers
 {
-    public class DeafultAudioHandler : SpecialHandler
+    public abstract class DefaultAudioHandler : SpecialHandler
     {
-        public Func<Id, IDefaultAudio> GetAudioFunction { get; }
-        public Func<Id, int, byte[]> GetDataFunction { get; }
-
-        public DeafultAudioHandler(
-            Func<Id, IDefaultAudio> getAudioFunction,
-            Func<Id, int, byte[]> getDataFunction)
-        {
-            GetAudioFunction = getAudioFunction;
-            GetDataFunction = getDataFunction;
-        }
+        public abstract IDefaultAudio GetAudio(Id id);
+        public abstract byte[] GetData(Id id, int part);
 
         public override string Path => "/audio/";
-        public override void Process(HttpContext context)
+        public override async Task Process(HttpContext context)
         {
             try
             {
@@ -31,10 +23,10 @@ namespace GraphQlRethinkDbLibrary.Handlers
                 {
                     var idString = context.Request.Path.Value.Substring(Path.Length);
                     var id = new Id(idString);
-                    var audio = GetAudioFunction.Invoke(id);
+                    var audio = GetAudio(id);
                     context.Response.Headers.Add("Content-Type", audio.ContentType);
                     var result = new VideoStreamResult(index => GetData(index, audio), "audio/mpeg", audio.Length);
-                    result.ExecuteResultAsync(context).Wait();
+                    await result.ExecuteResultAsync(context);
                     return;
                 }
             }
@@ -49,7 +41,7 @@ namespace GraphQlRethinkDbLibrary.Handlers
         private byte[] GetData(long index, IDefaultAudio defaultAudio)
         {
             var part = index / defaultAudio.BlockSize;
-            var data = GetDataFunction(defaultAudio.Id, Convert.ToInt32(part));
+            var data = GetData(defaultAudio.Id, Convert.ToInt32(part));
             return data;
         }
 

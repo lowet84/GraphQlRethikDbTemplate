@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using GraphQlRethinkDbLibrary;
+using GraphQlRethinkDbLibrary.Database;
 using GraphQlRethinkDbLibrary.Database.Search;
 using GraphQlRethinkDbTemplate.Model;
-using GraphQlRethinkDbTemplate.Schema;
 
 namespace GraphQlRethinkDbTemplate
 {
@@ -16,6 +16,7 @@ namespace GraphQlRethinkDbTemplate
             //Reset();
             //Delete();
             //Basic();
+            //AudioAndImage();
             //Clean();
         }
 
@@ -38,7 +39,7 @@ namespace GraphQlRethinkDbTemplate
                 @"query{series(id:""#####""){authors{name{fistName, lastName}} name books{id title bookAuthors{author{name{fistName lastName}}}} }}";
             query = query.Replace("#####", series.Id.ToString());
             var hostName = Environment.GetEnvironmentVariable("DATABASE");
-            var userContext = new UserContext(query, hostName, Program.DatabaseName);
+            var userContext = new UserContext(query, new DatabaseUrl(hostName), new DatabaseName(Program.DatabaseName));
 
             userContext.AddDefault(author);
             userContext.UpdateDefault(author2, author.Id);

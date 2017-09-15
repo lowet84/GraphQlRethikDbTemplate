@@ -17,7 +17,7 @@ namespace GraphQlRethinkDbLibrary.Database
         private static IEnumerable<string> DefaultTypes =>
             Assembly.GetEntryAssembly()
             .GetTypes()
-            .Where(type => type.UsesDeafultDbRead())
+            .Where(type => type.UsesDefaultDbRead())
             .Select(type=>type.GetCustomAttribute<TableAttribute>()?.TableName ?? type.Name);
 
 
