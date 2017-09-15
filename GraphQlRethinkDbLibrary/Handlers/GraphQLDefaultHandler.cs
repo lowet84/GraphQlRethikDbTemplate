@@ -10,11 +10,11 @@ using Microsoft.AspNetCore.Http;
 
 namespace GraphQlRethinkDbLibrary.Handlers
 {
-    public abstract class GraphQlDefaultHandler<TQuery, TMutation> : SpecialHandler
+    public class GraphQlDefaultHandler<TQuery, TMutation> : SpecialHandler
     {
         private readonly IRequestHandler _requestHandler;
 
-        protected GraphQlDefaultHandler()
+        public GraphQlDefaultHandler()
         {
             var queryType = typeof(TQuery);
             var mutationType = typeof(TMutation);

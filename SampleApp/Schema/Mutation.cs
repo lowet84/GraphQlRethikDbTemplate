@@ -4,12 +4,12 @@ using System.Net.Http;
 using GraphQlRethinkDbLibrary;
 using GraphQlRethinkDbLibrary.Schema;
 using GraphQlRethinkDbLibrary.Schema.Output;
-using GraphQlRethinkDbTemplate.Model;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
+using SampleApp.Model;
 using OperationType = GraphQL.Conventions.Relay.OperationType;
 
-namespace GraphQlRethinkDbTemplate.Schema
+namespace SampleApp.Schema
 {
     [ImplementViewer(OperationType.Mutation)]
     public class Mutation

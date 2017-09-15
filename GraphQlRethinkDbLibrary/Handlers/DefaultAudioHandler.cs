@@ -3,16 +3,16 @@ using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using GraphQL.Conventions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Newtonsoft.Json;
 
 namespace GraphQlRethinkDbLibrary.Handlers
 {
     public abstract class DefaultAudioHandler : SpecialHandler
     {
-        public abstract IDefaultAudio GetAudio(Id id);
-        public abstract byte[] GetData(Id id, int part);
+        public abstract IDefaultAudio GetAudio(string key);
+        public abstract byte[] GetData(string key, int part);
 
         public override string Path => "/audio/";
         public override async Task Process(HttpContext context)
@@ -21,9 +21,8 @@ namespace GraphQlRethinkDbLibrary.Handlers
             {
                 if (string.Compare(context.Request.Method, "GET", StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    var idString = context.Request.Path.Value.Substring(Path.Length);
-                    var id = new Id(idString);
-                    var audio = GetAudio(id);
+                    var keyString = context.Request.Path.Value.Substring(Path.Length);
+                    var audio = GetAudio(keyString);
                     context.Response.Headers.Add("Content-Type", audio.ContentType);
                     var result = new VideoStreamResult(index => GetData(index, audio), "audio/mpeg", audio.Length);
                     await result.ExecuteResultAsync(context);
@@ -41,13 +40,12 @@ namespace GraphQlRethinkDbLibrary.Handlers
         private byte[] GetData(long index, IDefaultAudio defaultAudio)
         {
             var part = index / defaultAudio.BlockSize;
-            var data = GetData(defaultAudio.Id, Convert.ToInt32(part));
+            var data = GetData(defaultAudio.Key, Convert.ToInt32(part));
             return data;
         }
 
         private class VideoStreamResult
         {
-            //public Stream FileStream { get; }
             private Func<long, byte[]> GetDataFunction { get; }
 
             private string ContentType { get; }
@@ -229,7 +227,8 @@ namespace GraphQlRethinkDbLibrary.Handlers
 
     public interface IDefaultAudio
     {
-        Id Id { get; }
+        [JsonIgnore]
+        string Key { get; }
         string ContentType { get; }
         int BlockSize { get; }
         long Length { get; }

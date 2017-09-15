@@ -5,9 +5,9 @@ using System.Net.Http;
 using GraphQlRethinkDbLibrary;
 using GraphQlRethinkDbLibrary.Database;
 using GraphQlRethinkDbLibrary.Database.Search;
-using GraphQlRethinkDbTemplate.Model;
+using SampleApp.Model;
 
-namespace GraphQlRethinkDbTemplate
+namespace SampleApp
 {
     public static class Debug
     {

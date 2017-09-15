@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using GraphQlRethinkDbLibrary.Handlers;
 using GraphQlRethinkDbLibrary.Schema.Types;
+using Newtonsoft.Json;
 
-namespace GraphQlRethinkDbTemplate.Model
+namespace SampleApp.Model
 {
     public class Audio : NodeBase<Audio>, IDefaultAudio
     {
@@ -25,6 +27,7 @@ namespace GraphQlRethinkDbTemplate.Model
 
         public string Source { get; }
 
+        string IDefaultAudio.Key => Id.ToString();
 
         public class AudioData : NodeBase<AudioData>
         {
@@ -38,5 +41,27 @@ namespace GraphQlRethinkDbTemplate.Model
 
             public int Length { get; }
         }
+    }
+
+    public class AudioFile : NodeBase<AudioFile>, IDefaultAudio
+    {
+        public string FileName { get; }
+
+        public AudioFile(string fileName)
+        {
+            FileName = fileName;
+        }
+
+
+        string IDefaultAudio.Key => Id.ToString();
+
+        [JsonIgnore]
+        public string ContentType => "audio/mpeg";
+
+        [JsonIgnore]
+        public int BlockSize => 200000;
+
+        [JsonIgnore]
+        public long Length => new FileInfo(FileName).Length;
     }
 }

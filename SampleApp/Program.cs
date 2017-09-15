@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Microsoft.AspNetCore.Hosting;
 
-namespace GraphQlRethinkDbTemplate
+namespace SampleApp
 {
     public class Program
     {
@@ -16,7 +16,9 @@ namespace GraphQlRethinkDbTemplate
                 .UseStartup<Startup>()
                 .UseUrls("http://*:7000")
                 .Build();
+
             Debug.Run();
+
             host.Run();
         }
     }

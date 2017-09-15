@@ -1,9 +1,8 @@
 ﻿using System;
 using GraphQlRethinkDbLibrary.Handlers;
 using GraphQlRethinkDbLibrary.Schema.Types;
-using GraphQL.Conventions;
 
-namespace GraphQlRethinkDbTemplate.Model
+namespace SampleApp.Model
 {
     public class Image : NodeBase<Image>, IDefaultImage
     {

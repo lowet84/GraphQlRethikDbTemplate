@@ -7,7 +7,7 @@ namespace GraphQlRethinkDbLibrary.Handlers
 {
     public abstract class DefaultImageHandler : SpecialHandler
     {
-        public abstract IDefaultImage GetImage(Id id);
+        public abstract IDefaultImage GetImage(string key);
 
         public override string Path => "/images/";
         public override async Task Process(HttpContext context)
@@ -16,9 +16,8 @@ namespace GraphQlRethinkDbLibrary.Handlers
             {
                 if (string.Compare(context.Request.Method, "GET", StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    var idString = context.Request.Path.Value.Substring(Path.Length);
-                    var id = new Id(idString);
-                    var image = GetImage(id);
+                    var keyString = context.Request.Path.Value.Substring(Path.Length);
+                    var image = GetImage(keyString);
                     context.Response.Headers.Add("Content-Type", image.ContentType);
                     var imageBytes = image.ImageData;
                     context.Response.StatusCode = 200;

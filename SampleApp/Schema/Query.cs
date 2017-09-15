@@ -4,12 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using GraphQlRethinkDbLibrary;
 using GraphQlRethinkDbLibrary.Database.Search;
-using GraphQlRethinkDbLibrary.Schema.Types;
-using GraphQlRethinkDbTemplate.Model;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
+using SampleApp.Model;
 
-namespace GraphQlRethinkDbTemplate.Schema
+namespace SampleApp.Schema
 {
     [ImplementViewer(OperationType.Query)]
     public class Query
