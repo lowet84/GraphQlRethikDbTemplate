@@ -2,6 +2,8 @@
 using GraphQlRethinkDbLibrary.Handlers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SampleApp.Handlers;
 using SampleApp.Schema;
@@ -12,6 +14,11 @@ namespace SampleApp
     {
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseCors(builder =>
+            {
+                builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+            });
+
             BaseHandler.Setup(
                 app,
                 env,
@@ -20,6 +27,12 @@ namespace SampleApp
                 new GraphQlDefaultHandler<Query,Mutation>(),
                 new ImageFileHandler(),
                 new AudioFileHandler());
+        }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            // Add framework services.
+            services.AddCors();
         }
     }
 }
