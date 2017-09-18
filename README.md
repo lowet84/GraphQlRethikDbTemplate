@@ -47,3 +47,16 @@ public class Mutation
     }
 }
 ```
+
+### Data
+``` SomeDataClass.cs
+public class SomeDataClass : NodeBase<SomeDataClass>
+{
+    public Author(string text)
+    {
+        Text = text;
+    }
+
+    public string Text { get; }
+}
+```
