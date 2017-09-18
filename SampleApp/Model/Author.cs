@@ -9,7 +9,7 @@ namespace SampleApp.Model
             Name = new Name(fistName, lastName);
         }
 
-        public Name Name { get; set; }
+        public Name Name { get; }
     }
 
     public class Name
