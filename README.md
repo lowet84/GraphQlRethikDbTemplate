@@ -4,7 +4,7 @@
 ## Getting started
 Start with an ASP.NET Core web application. Upgrade the project to dotnet core 2.0.
 
-´´´Startup.cs
+```Startup.cs
 public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             BaseHandler.Setup(
@@ -16,4 +16,4 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerF
                 new ImageFileHandler(),
                 new AudioFileHandler());
         }
-´´´Startup.cs
+```Startup.cs
