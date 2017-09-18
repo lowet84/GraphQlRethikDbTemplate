@@ -52,7 +52,7 @@ public class Mutation
 ``` SomeDataClass.cs
 public class SomeDataClass : NodeBase<SomeDataClass>
 {
-    public Author(string text)
+    public SomeDataClass(string text)
     {
         Text = text;
     }
