@@ -24,10 +24,10 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerF
 [ImplementViewer(OperationType.Query)]
 public class Query
 {
-    [Description("Get author by id")]
-    public Task<Author> Author(UserContext context, Id id)
+    [Description("Get data by id")]
+    public Task<SomeDataClass> Data(UserContext context, Id id)
     {
-        var data = context.Get<Author>(id);
+        var data = context.Get<SomeDataClass>(id);
         return Task.FromResult(data);
     }
 }
@@ -37,14 +37,13 @@ public class Query
 [ImplementViewer(OperationType.Mutation)]
 public class Mutation
 {
-    public DefaultResult<Author> AddAuthor(
+    public DefaultResult<SomeDataClass> AddData(
     UserContext context,
-    NonNull<string> firstName,
-    NonNull<string> lastName)
+    NonNull<string> text)
     {
-        var author = new Author(firstName, lastName);
-        var ret = context.AddDefault(author);
-        return new DefaultResult<Author>(ret);
+        var data = new SomeDataClass(text);
+        var ret = context.AddDefault(data);
+        return new DefaultResult<SomeDataClass>(ret);
     }
 }
 ```
