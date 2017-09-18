@@ -17,6 +17,6 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerF
             new ImageFileHandler(),  // Optional, if you want to serve images from the api
             new AudioFileHandler()); // Optional, if you want to stream audio from the api
      }
-```Startup.cs
+```
 
 ### Query and Mutation
