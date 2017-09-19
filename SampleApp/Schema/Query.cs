@@ -39,7 +39,7 @@ namespace SampleApp.Schema
         {
             var searchObject = new SearchObject<Book>()
                 .Add(SearchOperationType.Match, "Title", text);
-            var data = context.Search(searchObject);
+            var data = context.Search(searchObject, UserContext.ReadType.WithDocument);
             return Task.FromResult(data);
         }
 
@@ -50,23 +50,23 @@ namespace SampleApp.Schema
                 throw new ArgumentException("Id is not correct for type: Book");
             var searchObject = new SearchObject<Series>()
                 .Add(SearchOperationType.AnyEquals, "Books", bookId.ToString());
-            var data = context.Search(searchObject);
+            var data = context.Search(searchObject, UserContext.ReadType.WithDocument);
             return Task.FromResult(data);
         }
 
         [Description("Get all images")]
         public Task<Node[]> AllImageIds(UserContext context)
         {
-            var images = context.Search(new SearchObject<Image>());
-            var imageFiles = context.Search(new SearchObject<ImageFile>());
+            var images = context.Search(new SearchObject<Image>(), UserContext.ReadType.WithDocument);
+            var imageFiles = context.Search(new SearchObject<ImageFile>(), UserContext.ReadType.WithDocument);
             return Task.FromResult(GetNodes(images, imageFiles));
         }
 
         [Description("Get all audio")]
         public Task<Node[]> AllAudio(UserContext context)
         {
-            var audios = context.Search(new SearchObject<Audio>());
-            var audioFiles = context.Search(new SearchObject<AudioFile>());
+            var audios = context.Search(new SearchObject<Audio>(), UserContext.ReadType.WithDocument);
+            var audioFiles = context.Search(new SearchObject<AudioFile>(), UserContext.ReadType.WithDocument);
             return Task.FromResult(GetNodes(audios, audioFiles));
         }
 

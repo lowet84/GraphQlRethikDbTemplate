@@ -18,6 +18,16 @@ namespace SampleApp
             //Basic();
             //AudioAndImage();
             //Clean();
+            FixIssues();
+        }
+
+        private static void FixIssues()
+        {
+            var context = new UserContext();
+            var search = context.Search<Series>(
+                new SearchObject<Series>()
+                .Add(SearchOperationType.MatchMultiple, "Name", "serie", "Andra")
+                , UserContext.ReadType.Shallow);
         }
 
         private static void Clean()
@@ -32,7 +42,7 @@ namespace SampleApp
             var author2 = new Author("Bengt", "Bengtsson");
             var book = new Book("En bok", author);
             var series = new Series("En serie böcker", null);
-            var series2 = new Series("En serie böcker till", null);
+            var series2 = new Series("Andra böcker", null);
             var newSeries = new Series(series.Name, new[] { book });
 
             var query =
@@ -52,7 +62,7 @@ namespace SampleApp
 
             var searchObject = new SearchObject<Series>()
                 .Add(SearchOperationType.AnyEquals, nameof(Series.Books), readSeries.Books.First().Id.ToString());
-            var results = userContext.Search(searchObject);
+            var results = userContext.Search(searchObject, UserContext.ReadType.WithDocument);
         }
 
         private static void AudioAndImage()
@@ -114,11 +124,11 @@ namespace SampleApp
             context.AddDefault(book);
             context.AddDefault(series);
 
-            var seriesBefore = context.Search<Series>("Name", "Test");
+            var seriesBefore = context.Search<Series>("Name", "Test", UserContext.ReadType.Shallow);
             context.Remove<Book>(book.Id);
-            var seriesAfter = context.Search<Series>("Name", "Test");
+            var seriesAfter = context.Search<Series>("Name", "Test", UserContext.ReadType.Shallow);
             var restored = context.Restore<Book>(book.Id);
-            var seriesRestored = context.Search<Series>("Name", "Test");
+            var seriesRestored = context.Search<Series>("Name", "Test", UserContext.ReadType.Shallow);
             context.Remove<Book>(book.Id);
             context.CleanDatabase();
             restored = context.Restore<Book>(book.Id);

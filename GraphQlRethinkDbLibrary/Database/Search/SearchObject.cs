@@ -6,9 +6,9 @@ namespace GraphQlRethinkDbLibrary.Database.Search
     {
         private readonly List<SearchOperation> _operations = new List<SearchOperation>();
 
-        public SearchObject<T> Add(SearchOperationType operation, string propertyName, string value)
+        public SearchObject<T> Add(SearchOperationType operation, string propertyName, params string[] values)
         {
-            _operations.Add(new SearchOperation(operation, propertyName, value));
+            _operations.Add(new SearchOperation(operation, propertyName, values));
             return this;
         }
 
@@ -19,13 +19,13 @@ namespace GraphQlRethinkDbLibrary.Database.Search
     {
         public SearchOperationType OperationType { get; }
         public string PropertyName { get; }
-        public string Value { get; }
+        public string[] Values { get; }
 
-        public SearchOperation(SearchOperationType operationType, string propertyName, string value)
+        public SearchOperation(SearchOperationType operationType, string propertyName, string[] values)
         {
             OperationType = operationType;
             PropertyName = propertyName;
-            Value = value;
+            Values = values;
         }
     }
 
@@ -33,6 +33,7 @@ namespace GraphQlRethinkDbLibrary.Database.Search
     {
         Equals,
         Match,
-        AnyEquals
+        AnyEquals,
+        MatchMultiple
     }
 }

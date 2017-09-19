@@ -23,13 +23,16 @@ namespace GraphQlRethinkDbLibrary.Database
                     switch (operation.OperationType)
                     {
                         case SearchOperationType.Equals:
-                            expr = expr.Filter(item => item.G(operation.PropertyName).Eq(operation.Value));
+                            expr = expr.Filter(item => item.G(operation.PropertyName).Eq(operation.Values.Single()));
                             break;
                         case SearchOperationType.Match:
-                            expr = expr.Filter(item => item.G(operation.PropertyName).Match(operation.Value));
+                            expr = expr.Filter(item => item.G(operation.PropertyName).Match(operation.Values.Single()));
                             break;
                         case SearchOperationType.AnyEquals:
-                            expr = expr.Filter(item => item.G(operation.PropertyName).Contains(operation.Value));
+                            expr = expr.Filter(item => item.G(operation.PropertyName).Contains(operation.Values.Single()));
+                            break;
+                        case SearchOperationType.MatchMultiple:
+                            expr = expr.Filter(item => item.G(operation.PropertyName).Match(string.Join("|", operation.Values)));
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
