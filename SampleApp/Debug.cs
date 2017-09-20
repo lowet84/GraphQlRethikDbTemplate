@@ -13,12 +13,12 @@ namespace SampleApp
     {
         public static void Run()
         {
-            //Reset();
+            Reset();
             //Delete();
-            //Basic();
+            Basic();
             //AudioAndImage();
             //Clean();
-            FixIssues();
+            //FixIssues();
         }
 
         private static void FixIssues()

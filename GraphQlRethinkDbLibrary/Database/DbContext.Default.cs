@@ -3,6 +3,7 @@ using GraphQlRethinkDbLibrary.Schema;
 using GraphQlRethinkDbLibrary.Schema.Types;
 using GraphQL.Conventions;
 using GraphQLParser.AST;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace GraphQlRethinkDbLibrary.Database
@@ -14,7 +15,11 @@ namespace GraphQlRethinkDbLibrary.Database
             var type = typeof(T);
             var table = GetTable(type);
             Utils.InitalizeArrays(item);
-            var jObject = JObject.FromObject(item);
+            var jObject = JObject.FromObject(item, new JsonSerializer
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
+
             var jToken = Utils.ChangeTypeBaseItemsToIds(type, jObject);
             var chainLink = Chain.CreateChainLink<T>(item.Id, replaces);
             var result = table.Insert(jToken).Do_(e => GetTable(typeof(Chain)).Insert(chainLink)).RunResult(_connection);
@@ -28,7 +33,7 @@ namespace GraphQlRethinkDbLibrary.Database
 
         public T ReadByIdDefault<T>(Id id, UserContext.ReadType readType, GraphQLDocument document) where T : class
         {
-            var selectionSet = document!= null ? GetSelectionSet(document) : null;
+            var selectionSet = document != null ? GetSelectionSet(document) : null;
 
             switch (readType)
             {
