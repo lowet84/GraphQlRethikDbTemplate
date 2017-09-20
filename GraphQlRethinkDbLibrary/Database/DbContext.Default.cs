@@ -17,7 +17,7 @@ namespace GraphQlRethinkDbLibrary.Database
             Utils.InitalizeArrays(item);
             var jObject = JObject.FromObject(item, new JsonSerializer
             {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                ReferenceLoopHandling = ReferenceLoopHandling.Serialize
             });
 
             var jToken = Utils.ChangeTypeBaseItemsToIds(type, jObject);
