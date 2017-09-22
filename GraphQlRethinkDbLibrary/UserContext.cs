@@ -14,6 +14,8 @@ namespace GraphQlRethinkDbLibrary
 {
     public class UserContext : IUserContext, IDataLoaderContextProvider
     {
+        public string UserName { get; }
+
         public enum ReadType
         {
             WithDocument,
@@ -25,6 +27,11 @@ namespace GraphQlRethinkDbLibrary
         public UserContext() : this(null) { }
 
         public UserContext(string body) : this(body, null, null) { }
+
+        public UserContext(string body, string userName) : this(body, null, null)
+        {
+            UserName = userName;
+        }
 
         public UserContext(string body, DatabaseUrl databaseUrl, DatabaseName databaseName)
         {

@@ -46,6 +46,11 @@ namespace GraphQlRethinkDbLibrary.Handlers
 
         public override string Path => "/api";
 
+        public virtual UserContext GetUserContext(string body)
+        {
+            return new UserContext(body);
+        }
+
         public override async Task Process(HttpContext context)
         {
             if (string.Compare(context.Request.Method, "OPTIONS", StringComparison.OrdinalIgnoreCase) == 0)
@@ -62,7 +67,7 @@ namespace GraphQlRethinkDbLibrary.Handlers
 
             var streamReader = new StreamReader(context.Request.Body);
             var body = streamReader.ReadToEnd();
-            var userContext = new UserContext(body);
+            var userContext = GetUserContext(body);
             var result = await _requestHandler
                 .ProcessRequest(Request.New(body), userContext);
             context.Response.Headers.Add("Content-Type", "application/json; charset=utf-8");
