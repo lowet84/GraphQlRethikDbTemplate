@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>GraphQlRethinkDbLibrary</PackageId>
-    <PackageVersion>1.0.5</PackageVersion>
+    <PackageVersion>1.0.6</PackageVersion>
     <Authors>Fredrik Löwenhamn</Authors>
     <Description>Framework to create web apps with GraphQL and RethinkDb</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
