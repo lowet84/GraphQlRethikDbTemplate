@@ -74,7 +74,7 @@ namespace GraphQlRethinkDbLibrary
 
         public T UpdateDefault<T>(T newItem, Id oldId) where T : NodeBase
         {
-            return DbContext.Instance.AddDefault(newItem, oldId);
+            return DbContext.Instance.UpdateDeafult(newItem, oldId);
         }
 
         public T[] Search<T>(SearchObject<T> searchObject, ReadType readType) where T : NodeBase
@@ -100,11 +100,6 @@ namespace GraphQlRethinkDbLibrary
             DbContext.Instance.Remove<T>(id);
         }
 
-        public bool Restore<T>(Id id)
-        {
-            return DbContext.Instance.Restore<T>(id);
-        }
-
         public static GraphQLDocument GetDocument(string query)
         {
             var lexer = new Lexer();
@@ -117,11 +112,6 @@ namespace GraphQlRethinkDbLibrary
         public Task FetchData(CancellationToken token)
         {
             return Task.CompletedTask;
-        }
-
-        public void CleanDatabase()
-        {
-            DbContext.Instance.Clean();
         }
 
         public void Reset()

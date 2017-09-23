@@ -10,7 +10,7 @@ namespace GraphQlRethinkDbLibrary.Database
 {
     public partial class DbContext
     {
-        public T AddDefault<T>(T item, Id? replaces = null) where T : NodeBase
+        public T AddDefault<T>(T item) where T : NodeBase
         {
             var type = typeof(T);
             var table = GetTable(type);
@@ -21,8 +21,28 @@ namespace GraphQlRethinkDbLibrary.Database
             });
 
             var jToken = Utils.ChangeTypeBaseItemsToIds(type, jObject);
-            var chainLink = Chain.CreateChainLink<T>(item.Id, replaces);
-            var result = table.Insert(jToken).Do_(e => GetTable(typeof(Chain)).Insert(chainLink)).RunResult(_connection);
+            var result = table.Insert(jToken).RunResult(_connection);
+            if (result.Errors > 0)
+            {
+                throw new Exception("Something went wrong");
+            }
+
+            return item;
+        }
+
+        public T UpdateDeafult<T>(T item, Id replaces)
+        {
+            var type = typeof(T);
+            var table = GetTable(type);
+            Utils.InitalizeArrays(item);
+            var jObject = JObject.FromObject(item, new JsonSerializer
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Serialize
+            });
+            jObject["id"] = replaces.ToString();
+
+            var jToken = Utils.ChangeTypeBaseItemsToIds(type, jObject);
+            var result = table.Get(replaces.ToString()).Update(jToken).RunResult(_connection);
             if (result.Errors > 0)
             {
                 throw new Exception("Something went wrong");
@@ -51,8 +71,7 @@ namespace GraphQlRethinkDbLibrary.Database
             var type = typeof(T);
             if (!id.IsIdentifierForType<T>())
                 throw new Exception($"Id is not valid for type {type.Name}");
-            var chainLink = Chain.CreateChainLink<T>(null, id);
-            var result = GetTable(typeof(Chain)).Insert(chainLink).RunResult(_connection);
+            var result = GetTable(typeof(T)).Get(id).Delete().RunResult(_connection);
             if (result.Errors > 0)
             {
                 throw new Exception("Something went wrong");
@@ -62,28 +81,6 @@ namespace GraphQlRethinkDbLibrary.Database
         public T[] GetArrayByIdDefault<T>(Id[] ids, GraphQLDocument document)
         {
             return GetWithDocument<T[]>(GetSelectionSet(document), ids);
-        }
-
-        public bool Restore<T>(Id id)
-        {
-            var type = typeof(T);
-            if (!id.IsIdentifierForType<T>())
-                throw new Exception($"Id is not valid for type {type.Name}");
-            var exists = GetTable(type).GetAll(id.ToString())
-                .Count()
-                .Eq(1)
-                .RunResult<bool>(_connection);
-            if (!exists)
-            {
-                return false;
-            }
-            var chainLink = Chain.CreateChainLink<T>(id, id);
-            var result = GetTable(typeof(Chain)).Insert(chainLink).RunResult(_connection);
-            if (result.Errors > 0)
-            {
-                throw new Exception("Something went wrong");
-            }
-            return true;
         }
     }
 }

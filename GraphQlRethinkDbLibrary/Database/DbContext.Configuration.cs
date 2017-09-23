@@ -28,7 +28,6 @@ namespace GraphQlRethinkDbLibrary.Database
 
         private static IEnumerable<TableInfo> TableInfos =>
             DefaultTypes
-            .Union(new[] { new TableInfo("Chain", new[] { "CurrentId", "ChainVersion", "LinkId" }) })
             .ToList();
 
         private class TableInfo

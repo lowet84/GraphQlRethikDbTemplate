@@ -61,7 +61,7 @@ namespace GraphQlRethinkDbLibrary.Database
             var importTree = GetImportTree(typeof(T), hashMap, null);
             var idStrings = ids.Select(d => d.ToString()).ToArray();
             var table = GetTable(typeof(T));
-            ReqlExpr get = table.GetAll(R.Args(idStrings.Map(id => GetNewestId(id))));
+            ReqlExpr get = table.GetAll(R.Args(idStrings));
             get = get.Map(item => Merge(item, importTree));
             get = get.Map(item => item.Pluck(hashMap));
             var result = get.CoerceTo("ARRAY").Run(_connection) as JArray;
@@ -73,7 +73,7 @@ namespace GraphQlRethinkDbLibrary.Database
             var importTree = GetImportTree(typeof(T), hashMap, null);
             var table = GetTable(typeof(T));
             ReqlExpr get = table
-                .Get(GetNewestId(id.ToString()));
+                .Get(id.ToString());
             get = Merge(get, importTree);
             get = get.Pluck(hashMap);
             var result = get.Run(_connection) as JObject;
@@ -85,7 +85,7 @@ namespace GraphQlRethinkDbLibrary.Database
             var table = GetTable(typeof(T));
             try
             {
-                var result = table.Get(GetNewestId(id.ToString()))
+                var result = table.Get(id.ToString())
                     .Run(_connection) as JObject;
                 var ret = Utils.DeserializeObject(typeof(T), result);
                 return ret as T;
@@ -102,7 +102,7 @@ namespace GraphQlRethinkDbLibrary.Database
             var table = GetTable(type);
             try
             {
-                var result = table.GetAll(R.Args(ids.Select(d => d.ToString()).Map(id => GetNewestId(id)).ToArray())).CoerceTo("ARRAY")
+                var result = table.GetAll(R.Args(ids.Select(d => d.ToString()).ToArray())).CoerceTo("ARRAY")
                     .Run(_connection) as JArray;
                 var ret = Utils.DeserializeObject(type, result);
                 return ret as T;
@@ -142,11 +142,10 @@ namespace GraphQlRethinkDbLibrary.Database
             if (importItem.IsArray && importItem.NodeBase)
                 return importItem.Table.GetAll(R.Args(
                     item.G(importItem.PropertyName)
-                    .Map(GetNewestId)
                     .Filter(key => key != null)));
             // Get single item from other table by key
             if (importItem.NodeBase)
-                return importItem.Table.Get(GetNewestId(item.G(importItem.PropertyName)));
+                return importItem.Table.Get(item.G(importItem.PropertyName));
             // Return raw property (array or object)
             return item.G(importItem.PropertyName);
         }

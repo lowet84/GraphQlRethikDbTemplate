@@ -30,12 +30,6 @@ namespace SampleApp
                 , UserContext.ReadType.Shallow);
         }
 
-        private static void Clean()
-        {
-            var context = new UserContext();
-            context.CleanDatabase();
-        }
-
         private static void Basic()
         {
             var author = new Author("Axel", "Axelsson");
@@ -127,11 +121,6 @@ namespace SampleApp
             var seriesBefore = context.Search<Series>("Name", "Test", UserContext.ReadType.Shallow);
             context.Remove<Book>(book.Id);
             var seriesAfter = context.Search<Series>("Name", "Test", UserContext.ReadType.Shallow);
-            var restored = context.Restore<Book>(book.Id);
-            var seriesRestored = context.Search<Series>("Name", "Test", UserContext.ReadType.Shallow);
-            context.Remove<Book>(book.Id);
-            context.CleanDatabase();
-            restored = context.Restore<Book>(book.Id);
         }
     }
 }

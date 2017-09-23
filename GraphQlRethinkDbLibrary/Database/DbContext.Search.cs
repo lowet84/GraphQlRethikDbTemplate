@@ -41,7 +41,6 @@ namespace GraphQlRethinkDbLibrary.Database
 
                 JArray result = expr
                     .Map(item => item.G("id"))
-                    .Filter(id => id.Eq(GetNewestId(id)))
                     .CoerceTo("ARRAY")
                     .Run(_connection);
 
