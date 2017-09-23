@@ -15,9 +15,9 @@ namespace GraphQlRethinkDbLibrary.Database
         private static readonly RethinkDB R = RethinkDB.R;
         private readonly ConnectionPool _connection;
 
-        internal static  void Initialize(string databaseUrl, string databaseName)
+        internal static void Initialize(string databaseUrl, string databaseName)
         {
-            if(_instance!= null)
+            if (_instance != null)
                 throw new Exception("DbContext is already initialized");
             DatabaseName = databaseName;
             _instance = new DbContext(databaseUrl);
@@ -28,7 +28,7 @@ namespace GraphQlRethinkDbLibrary.Database
 
         private DbContext(string hostName)
         {
-            var ip = Dns.GetHostAddresses(hostName).First(d=>d.AddressFamily == AddressFamily.InterNetwork);
+            var ip = Dns.GetHostAddresses(hostName).First(d => d.AddressFamily == AddressFamily.InterNetwork);
             Console.WriteLine($"Connecting to database pool: {hostName} on ip:{ip}");
             _connection = R.ConnectionPool()
                 .Seed($"{ip}:{RethinkDBConstants.DefaultPort}")
@@ -48,11 +48,18 @@ namespace GraphQlRethinkDbLibrary.Database
             }
             var tables = R.Db(DatabaseName).TableList().RunResult<List<string>>(_connection);
 
-            foreach (var tableName in TableNames)
+            foreach (var tableInfo in TableInfos)
             {
-                if (!tables.Contains(tableName))
-                    R.Db(DatabaseName).TableCreate(tableName).Run(_connection);
+                if (!tables.Contains(tableInfo.TableName))
+                {
+                    R.Db(DatabaseName).TableCreate(tableInfo.TableName).Run(_connection);
+                    foreach (var secondaryIndex in tableInfo.SecondaryIndexes)
+                    {
+                        var secondaryIndexResult = R.Db(DatabaseName).Table(tableInfo.TableName).IndexCreate(secondaryIndex).Run(_connection);
+                    }
+                }
             }
+
             Initalized = true;
         }
     }

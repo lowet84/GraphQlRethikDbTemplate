@@ -1,4 +1,5 @@
-﻿using GraphQlRethinkDbLibrary.Schema.Types;
+﻿using GraphQlRethinkDbLibrary.Attributes;
+using GraphQlRethinkDbLibrary.Schema.Types;
 using GraphQL.Conventions;
 
 namespace SampleApp.Model
@@ -13,6 +14,7 @@ namespace SampleApp.Model
         }
 
         [Description("The title of the book")]
+        [SecondaryIndex]
         public string Title { get; }
 
         [Description("The author of the book")]
