@@ -2,13 +2,13 @@
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQlRethinkDbLibrary.Database;
-using GraphQlRethinkDbLibrary.Database.Search;
 using GraphQlRethinkDbLibrary.Schema;
 using GraphQlRethinkDbLibrary.Schema.Types;
 using GraphQL.Conventions;
 using GraphQLParser;
 using GraphQLParser.AST;
 using Newtonsoft.Json.Linq;
+using RethinkDb.Driver.Ast;
 
 namespace GraphQlRethinkDbLibrary
 {
@@ -77,22 +77,21 @@ namespace GraphQlRethinkDbLibrary
             return DbContext.Instance.UpdateDeafult(newItem, oldId);
         }
 
-        public T[] Search<T>(SearchObject<T> searchObject, ReadType readType) where T : NodeBase
+        public T[] Search<T>(Func<ReqlExpr, ReqlExpr> searchFunc, ReadType readType) where T : NodeBase
         {
-            var ret = DbContext.Instance.Search(searchObject, Document, readType);
+            var ret = DbContext.Instance.Search<T>(searchFunc, Document, readType);
             return Utils.AddOrInitializeArray(ret);
         }
 
         public T[] Search<T>(string propertyName, string value, ReadType readType) where T : NodeBase
         {
-            var searchObject = new SearchObject<T>().Add(SearchOperationType.Match, propertyName, value);
-            return Search(searchObject, readType);
-            
+            var ret = DbContext.Instance.Search<T>(d => d.Filter(item => item.G(propertyName).Match(value)), Document, readType);
+            return Utils.AddOrInitializeArray(ret);
         }
 
         public T[] GetAll<T>(ReadType readType) where T : NodeBase
         {
-            return Search<T>("id", "", readType);
+            return Search<T>(d => d, ReadType.Shallow);
         }
 
         public void Remove<T>(Id id)

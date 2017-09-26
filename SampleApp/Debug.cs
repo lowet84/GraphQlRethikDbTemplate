@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net.Http;
 using GraphQlRethinkDbLibrary;
 using GraphQlRethinkDbLibrary.Database;
-using GraphQlRethinkDbLibrary.Database.Search;
 using SampleApp.Model;
 
 namespace SampleApp
@@ -18,16 +17,17 @@ namespace SampleApp
             Basic();
             //AudioAndImage();
             //Clean();
-            //FixIssues();
+            FixIssues();
         }
 
         private static void FixIssues()
         {
             var context = new UserContext();
-            var search = context.Search<Series>(
-                new SearchObject<Series>()
-                .Add(SearchOperationType.MatchMultiple, "Name", "serie", "Andra")
-                , UserContext.ReadType.Shallow);
+            var searches = new[] {"serie", "Andra"};
+            var result =
+                context.Search<Series>(
+                    d => d.Filter(series => series.G("Name").Match(string.Join("|", searches))),
+                    UserContext.ReadType.Shallow);
         }
 
         private static void Basic()
@@ -54,9 +54,9 @@ namespace SampleApp
 
             var readSeries = userContext.Get<Series>(series.Id);
 
-            var searchObject = new SearchObject<Series>()
-                .Add(SearchOperationType.AnyEquals, nameof(Series.Books), readSeries.Books.First().Id.ToString());
-            var results = userContext.Search(searchObject, UserContext.ReadType.WithDocument);
+            var results = userContext.Search<Series>(
+                expr=>expr.Filter(s=>s.G("Books").Contains(readSeries.Books.First().Id.ToString()))
+                , UserContext.ReadType.WithDocument);
         }
 
         private static void AudioAndImage()
@@ -118,9 +118,9 @@ namespace SampleApp
             context.AddDefault(book);
             context.AddDefault(series);
 
-            var seriesBefore = context.Search<Series>("Name", "Test", UserContext.ReadType.Shallow);
-            context.Remove<Book>(book.Id);
-            var seriesAfter = context.Search<Series>("Name", "Test", UserContext.ReadType.Shallow);
+            //var seriesBefore = context.Search<Series>("Name", "Test", UserContext.ReadType.Shallow);
+            //context.Remove<Book>(book.Id);
+            //var seriesAfter = context.Search<Series>("Name", "Test", UserContext.ReadType.Shallow);
         }
     }
 }

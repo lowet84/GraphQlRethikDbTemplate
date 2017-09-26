@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using GraphQlRethinkDbLibrary.Database.Search;
+using GraphQlRethinkDbLibrary.Schema;
 using GraphQlRethinkDbLibrary.Schema.Types;
 using GraphQL.Conventions;
 using GraphQLParser.AST;
@@ -11,54 +11,31 @@ namespace GraphQlRethinkDbLibrary.Database
 {
     public partial class DbContext
     {
-        public T[] Search<T>(SearchObject<T> searchObject, GraphQLDocument document, UserContext.ReadType readType)
+        public T[] Search<T>(Func<ReqlExpr, ReqlExpr> searchFunction, GraphQLDocument document, UserContext.ReadType readType)
             where T : NodeBase
         {
-            var type = typeof(T);
-            try
+            var type = typeof(T[]);
+            var table = GetTable(type);
+            switch (readType)
             {
-                ReqlExpr expr = GetTable(type);
-                foreach (var operation in searchObject.Operations)
-                {
-                    switch (operation.OperationType)
-                    {
-                        case SearchOperationType.Equals:
-                            expr = expr.Filter(item => item.G(operation.PropertyName).Eq(operation.Values.Single()));
-                            break;
-                        case SearchOperationType.Match:
-                            expr = expr.Filter(item => item.G(operation.PropertyName).Match(operation.Values.Single()));
-                            break;
-                        case SearchOperationType.AnyEquals:
-                            expr = expr.Filter(item => item.G(operation.PropertyName).Contains(operation.Values.Single()));
-                            break;
-                        case SearchOperationType.MatchMultiple:
-                            expr = expr.Filter(item => item.G(operation.PropertyName).Match(string.Join("|", operation.Values)));
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                }
-
-                JArray result = expr
-                    .Map(item => item.G("id"))
-                    .CoerceTo("ARRAY")
-                    .Run(_connection);
-
-                var ids = result.Select(d => new Id(d.ToString())).ToArray();
-                switch (readType)
-                {
-                    case UserContext.ReadType.WithDocument:
-                        return Instance.GetWithDocument<T[]>(GetSelectionSet(document), ids);
-                    case UserContext.ReadType.Shallow:
-                        return Instance.GetShallow<T[]>(ids);
-                }
-
-                throw new NotImplementedException();
+                case UserContext.ReadType.WithDocument:
+                    var selectionSet = GetSelectionSet(document);
+                    var hashMap = GetHashMap(selectionSet, type);
+                    var importTree = GetImportTree(typeof(T), hashMap, null);
+                    var docExpr = searchFunction(table);
+                    docExpr = docExpr.Map(item => Merge(item, importTree));
+                    docExpr = docExpr.Map(item => item.Pluck(hashMap));
+                    var docResult = docExpr.CoerceTo("ARRAY").Run(_connection) as JArray;
+                    var docRet = Utils.DeserializeObject(type, docResult);
+                    return docRet as T[];
+                case UserContext.ReadType.Shallow:
+                    var shallowSearchExpr = searchFunction(table);
+                    var shallowResult = shallowSearchExpr.CoerceTo("ARRAY").Run(_connection) as JArray;
+                    var shallowRet = Utils.DeserializeObject(type, shallowResult);
+                    return shallowRet as T[];
             }
-            catch (Exception)
-            {
-                return null;
-            }
+
+            return null;
         }
     }
 }

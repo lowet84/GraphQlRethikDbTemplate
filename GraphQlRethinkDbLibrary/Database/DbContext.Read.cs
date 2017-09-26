@@ -37,15 +37,13 @@ namespace GraphQlRethinkDbLibrary.Database
             return selectionSet;
         }
 
-        private T GetWithDocument<T>(GraphQLSelectionSet selectionSet, params Id[] id) where T : class
+        private T GetWithDocument<T>(GraphQLSelectionSet selectionSet, Id id) where T : class
         {
             var type = typeof(T);
             var hashMap = GetHashMap(selectionSet, type);
             try
             {
-                var result = type.IsArray
-                    ? (JToken)GetFromDb<T>(id, hashMap)
-                    : GetFromDb<T>(id.First(), hashMap);
+                var result = GetFromDb<T>(id, hashMap);
 
                 var ret = Utils.DeserializeObject(typeof(T), result);
                 return ret as T;
@@ -88,23 +86,6 @@ namespace GraphQlRethinkDbLibrary.Database
                 var result = table.Get(id.ToString())
                     .Run(_connection) as JObject;
                 var ret = Utils.DeserializeObject(typeof(T), result);
-                return ret as T;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        private T GetShallow<T>(Id[] ids) where T : class
-        {
-            var type = typeof(T);
-            var table = GetTable(type);
-            try
-            {
-                var result = table.GetAll(R.Args(ids.Select(d => d.ToString()).ToArray())).CoerceTo("ARRAY")
-                    .Run(_connection) as JArray;
-                var ret = Utils.DeserializeObject(type, result);
                 return ret as T;
             }
             catch (Exception)

@@ -77,10 +77,5 @@ namespace GraphQlRethinkDbLibrary.Database
                 throw new Exception("Something went wrong");
             }
         }
-
-        public T[] GetArrayByIdDefault<T>(Id[] ids, GraphQLDocument document)
-        {
-            return GetWithDocument<T[]>(GetSelectionSet(document), ids);
-        }
     }
 }
