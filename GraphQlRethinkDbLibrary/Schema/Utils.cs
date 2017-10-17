@@ -185,8 +185,14 @@ namespace GraphQlRethinkDbLibrary.Schema
         {
             if (!root && type.IsNodeBase())
             {
-                var id = jToken["id"].ToString();
-                var newToken = new JValue(id);
+                JValue newToken = null;
+                if (jToken.Any())
+                {
+                    var id = jToken["id"];
+                    var value = id.ToString();
+                    newToken = new JValue(value);
+                }
+                
                 jToken.Replace(newToken);
                 return;
             }

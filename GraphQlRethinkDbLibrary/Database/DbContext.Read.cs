@@ -126,7 +126,7 @@ namespace GraphQlRethinkDbLibrary.Database
                     .Filter(key => key != null)));
             // Get single item from other table by key
             if (importItem.NodeBase)
-                return importItem.Table.Get(item.G(importItem.PropertyName));
+                return importItem.Table.Get(item.G(importItem.PropertyName)).Default_((object)null);
             // Return raw property (array or object)
             return item.G(importItem.PropertyName);
         }

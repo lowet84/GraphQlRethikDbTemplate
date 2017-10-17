@@ -14,10 +14,11 @@ namespace SampleApp
         {
             Reset();
             //Delete();
-            Basic();
+            //Basic();
             //AudioAndImage();
             //Clean();
-            FixIssues();
+            //FixIssues();
+            NullProperty();
         }
 
         private static void FixIssues()
@@ -121,6 +122,14 @@ namespace SampleApp
             //var seriesBefore = context.Search<Series>("Name", "Test", UserContext.ReadType.Shallow);
             //context.Remove<Book>(book.Id);
             //var seriesAfter = context.Search<Series>("Name", "Test", UserContext.ReadType.Shallow);
+        }
+
+        private static void NullProperty()
+        {
+            var book = new Book("dsisdf", null);
+            var userContext = new UserContext("query{dummy{bookAuthors{author{id}}}}");
+            userContext.AddDefault(book);
+            var test = userContext.Get<Book>(book.Id);
         }
     }
 }
