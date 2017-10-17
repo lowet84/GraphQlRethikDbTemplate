@@ -10,7 +10,7 @@
     <PackageReleaseNotes>First release</PackageReleaseNotes>
     <Copyright>Copyright 2017 (c) Fredrik Löwenhamn. All rights reserved.</Copyright>
     <PackageTags>graphql rethinkdb</PackageTags>
-    <ProjectUrl>https://github.com/lowet84/GraphQlRethinkDbTemplate</ProjectUrl>
+    <ProjectURL>https://github.com/lowet84/GraphQlRethinkDbTemplate</ProjectURL>
   </PropertyGroup>
 
   <ItemGroup>
