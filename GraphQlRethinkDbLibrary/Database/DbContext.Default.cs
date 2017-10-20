@@ -71,7 +71,7 @@ namespace GraphQlRethinkDbLibrary.Database
             var type = typeof(T);
             if (!id.IsIdentifierForType<T>())
                 throw new Exception($"Id is not valid for type {type.Name}");
-            var result = GetTable(typeof(T)).Get(id).Delete().RunResult(_connection);
+            var result = GetTable(typeof(T)).Get(id.ToString()).Delete().RunResult(_connection);
             if (result.Errors > 0)
             {
                 throw new Exception("Something went wrong");
