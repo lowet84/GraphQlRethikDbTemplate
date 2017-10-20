@@ -48,6 +48,7 @@ namespace GraphQlRethinkDbLibrary.Database
                 throw new Exception("Something went wrong");
             }
 
+            Utils.ForceSetValue(item, "Id", replaces);
             return item;
         }
 

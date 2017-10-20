@@ -69,7 +69,7 @@ namespace GraphQlRethinkDbLibrary.Schema
             return item;
         }
 
-        private static void ForceSetValue(object item, string propertyName, object value)
+        internal static void ForceSetValue(object item, string propertyName, object value)
         {
             var fields = GetFields(item.GetType());
             var field = fields.First(d => d.Name.StartsWith($"<{propertyName}>"));
