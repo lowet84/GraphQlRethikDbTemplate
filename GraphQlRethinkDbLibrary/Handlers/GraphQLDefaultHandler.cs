@@ -10,31 +10,42 @@ using Microsoft.AspNetCore.Http;
 
 namespace GraphQlRethinkDbLibrary.Handlers
 {
-    public class GraphQlDefaultHandler<TQuery, TMutation> : SpecialHandler
+    public class GraphQlDefaultHandler : SpecialHandler
     {
         private readonly IRequestHandler _requestHandler;
 
-        public GraphQlDefaultHandler()
+        public GraphQlDefaultHandler(params Assembly[] assemblies)
         {
-            var queryType = typeof(TQuery);
-            var mutationType = typeof(TMutation);
+            assemblies = assemblies.Concat(new[] {Assembly.GetEntryAssembly()}).ToArray();
+            var operationClassTypes = assemblies.SelectMany(d => d.GetTypes())
+                .Where(d => d.GetCustomAttribute<ImplementViewerAttribute>() != null);
 
-            var queryAttribute = queryType.GetCustomAttribute<ImplementViewerAttribute>();
-            var mutationAttribute = mutationType.GetCustomAttribute<ImplementViewerAttribute>();
-            if (!MatchesOperationType(queryAttribute, OperationType.Query))
+            var builder = RequestHandler.New();
+            foreach (var operationClass in operationClassTypes)
             {
-                throw new Exception("Query must have attribute [ImplementViewer(OperationType.Query)]");
+                switch (GetOperationType(operationClass))
+                {
+                    case OperationType.Query:
+                        builder = builder.WithQuery(operationClass); break;
+                    case OperationType.Mutation:
+                        builder = builder.WithMutation(operationClass); break;
+                    case OperationType.Subscription:
+                        builder = builder.WithSubscription(operationClass); break;
+                    case null:
+                        throw new ArgumentOutOfRangeException();
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
-            if (!MatchesOperationType(mutationAttribute, OperationType.Mutation))
-            {
-                throw new Exception("Mutation must have attribute [ImplementViewer(OperationType.Mutation)]");
-            }
+            _requestHandler = builder.Generate();
+        }
 
-            _requestHandler = RequestHandler
-                .New()
-                .WithQuery(queryType)
-                .WithMutation(mutationType)
-                .Generate();
+        private OperationType? GetOperationType(Type type)
+        {
+            var attribute = type.GetCustomAttribute<ImplementViewerAttribute>();
+            var attributeOperationType = Utils.GetFields(typeof(ImplementViewerAttribute)).First(d => d.Name == "_operationType")
+                .GetValue(attribute) as OperationType?;
+            return attributeOperationType;
         }
 
         private bool MatchesOperationType(ImplementViewerAttribute attribute, OperationType operationType)
