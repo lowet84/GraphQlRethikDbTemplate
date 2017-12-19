@@ -51,7 +51,19 @@ namespace GraphQlRethinkDbLibrary
             }
         }
 
-        public T Get<T>(Id id, ReadType readType = ReadType.WithDocument) where T : class
+
+
+        public T Get<T>(Id id) where T : class
+        {
+            return Get<T>(id, ReadType.WithDocument);
+        }
+
+        public static T GetShallow<T>(Id id) where T : class
+        {
+            return new UserContext().Get<T>(id, ReadType.Shallow);
+        }
+
+        private T Get<T>(Id id, ReadType readType) where T : class
         {
             if (!id.IsIdentifierForType<T>())
             {
@@ -67,37 +79,77 @@ namespace GraphQlRethinkDbLibrary
             throw new ArgumentException($"Unable to derive type from identifier '{id}'");
         }
 
-        public T AddDefault<T>(T newItem) where T : NodeBase
+
+
+        public static T AddDefault<T>(T newItem) where T : NodeBase
         {
             return DbContext.Instance.AddDefault(newItem);
         }
 
-        public T UpdateDefault<T>(T newItem, Id oldId) where T : NodeBase
+
+
+        public static T UpdateDefault<T>(T newItem, Id oldId) where T : NodeBase
         {
             return DbContext.Instance.UpdateDeafult(newItem, oldId);
         }
 
-        public T[] Search<T>(Func<ReqlExpr, ReqlExpr> searchFunc, ReadType readType) where T : NodeBase
+        public T[] Search<T>(Func<ReqlExpr, ReqlExpr> searchFunc) where T : NodeBase
+        {
+            return Search<T>(searchFunc, ReadType.WithDocument);
+        }
+
+        public static T[] SearchShallow<T>(Func<ReqlExpr, ReqlExpr> searchFunc) where T : NodeBase
+        {
+            return new UserContext().Search<T>(searchFunc, ReadType.Shallow);
+        }
+
+        private T[] Search<T>(Func<ReqlExpr, ReqlExpr> searchFunc, ReadType readType) where T : NodeBase
         {
             var ret = DbContext.Instance.Search<T>(searchFunc, Document, readType);
             return Utils.AddOrInitializeArray(ret);
         }
 
-        public T[] Search<T>(string propertyName, string value, ReadType readType) where T : NodeBase
+        public T[] Search<T>(string propertyName, string value) where T : NodeBase
+        {
+            return Search<T>(propertyName, value, ReadType.WithDocument);
+        }
+
+        public static T[] SearchShallow<T>(string propertyName, string value) where T : NodeBase
+        {
+            return new UserContext().Search<T>(propertyName, value, ReadType.Shallow);
+        }
+
+        private T[] Search<T>(string propertyName, string value, ReadType readType) where T : NodeBase
         {
             var ret = DbContext.Instance.Search<T>(d => d.Filter(item => item.G(propertyName).Match(value)), Document, readType);
             return Utils.AddOrInitializeArray(ret);
         }
 
-        public T[] GetAll<T>(ReadType readType) where T : NodeBase
+
+
+        public T[] GetAll<T>() where T : NodeBase
         {
-            return Search<T>(d => d, ReadType.Shallow);
+            return GetAll<T>(ReadType.WithDocument);
         }
 
-        public void Remove<T>(Id id)
+        public static T[] GetAllShallow<T>() where T : NodeBase
+        {
+            return new UserContext().GetAll<T>(ReadType.Shallow);
+        }
+
+        private T[] GetAll<T>(ReadType readType) where T : NodeBase
+        {
+            return Search<T>(d => d, readType);
+        }
+
+
+
+        public static void Remove<T>(Id id)
         {
             DbContext.Instance.Remove<T>(id);
         }
+
+
 
         public static GraphQLDocument GetDocument(string query)
         {

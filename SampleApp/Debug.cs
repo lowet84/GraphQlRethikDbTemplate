@@ -23,12 +23,10 @@ namespace SampleApp
 
         private static void FixIssues()
         {
-            var context = new UserContext();
             var searches = new[] {"serie", "Andra"};
             var result =
-                context.Search<Series>(
-                    d => d.Filter(series => series.G("Name").Match(string.Join("|", searches))),
-                    UserContext.ReadType.Shallow);
+                UserContext.SearchShallow<Series>(
+                    d => d.Filter(series => series.G("Name").Match(string.Join("|", searches))));
         }
 
         private static void Basic()
@@ -46,24 +44,21 @@ namespace SampleApp
             var hostName = Environment.GetEnvironmentVariable("DATABASE");
             var userContext = new UserContext(query, new DatabaseUrl(hostName), new DatabaseName(Program.DatabaseName));
 
-            userContext.AddDefault(author);
-            userContext.UpdateDefault(author2, author.Id);
-            userContext.AddDefault(book);
-            userContext.AddDefault(series);
-            userContext.AddDefault(series2);
-            userContext.UpdateDefault(newSeries, series.Id);
+            UserContext.AddDefault(author);
+            UserContext.UpdateDefault(author2, author.Id);
+            UserContext.AddDefault(book);
+            UserContext.AddDefault(series);
+            UserContext.AddDefault(series2);
+            UserContext.UpdateDefault(newSeries, series.Id);
 
             var readSeries = userContext.Get<Series>(series.Id);
 
             var results = userContext.Search<Series>(
-                expr=>expr.Filter(s=>s.G("Books").Contains(readSeries.Books.First().Id.ToString()))
-                , UserContext.ReadType.WithDocument);
+                expr=>expr.Filter(s=>s.G("Books").Contains(readSeries.Books.First().Id.ToString())));
         }
 
         private static void AudioAndImage()
         {
-            var userContext = new UserContext();
-
             var imageData = new HttpClient()
                 .GetByteArrayAsync("https://images-na.ssl-images-amazon.com/images/I/51vaI4XGL9L.jpg")
                 .Result;
@@ -86,14 +81,14 @@ namespace SampleApp
             }
             var audio = new Audio(audioDataParts.ToArray(), "dummy", "audio/mpeg", blockSize);
 
-            userContext.AddDefault(audioFile);
+            UserContext.AddDefault(audioFile);
 
-            userContext.AddDefault(image);
-            userContext.AddDefault(imageFile);
-            userContext.AddDefault(audio);
+            UserContext.AddDefault(image);
+            UserContext.AddDefault(imageFile);
+            UserContext.AddDefault(audio);
             foreach (var audioDataPart in audioDataParts)
             {
-                userContext.AddDefault(audioDataPart);
+                UserContext.AddDefault(audioDataPart);
             }
         }
 
@@ -115,9 +110,9 @@ namespace SampleApp
 
             var context = new UserContext(query);
 
-            context.AddDefault(author);
-            context.AddDefault(book);
-            context.AddDefault(series);
+            UserContext.AddDefault(author);
+            UserContext.AddDefault(book);
+            UserContext.AddDefault(series);
 
             //var seriesBefore = context.Search<Series>("Name", "Test", UserContext.ReadType.Shallow);
             //context.Remove<Book>(book.Id);
@@ -128,7 +123,7 @@ namespace SampleApp
         {
             var book = new Book("dsisdf", null);
             var userContext = new UserContext("query{dummy{bookAuthors{author{id}}}}");
-            userContext.AddDefault(book);
+            UserContext.AddDefault(book);
             var test = userContext.Get<Book>(book.Id);
         }
     }
