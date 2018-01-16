@@ -103,8 +103,16 @@ namespace GraphQlRethinkDbLibrary.Schema
                     return null;
                 case JTokenType.Integer:
                     return HandleInteger(type, jToken);
+                case JTokenType.Boolean:
+                    return HandleBoolean(type, jToken);
             }
             throw new NotImplementedException($"Type: {jToken.Type.ToString()} is not handled yet");
+        }
+
+        private static object HandleBoolean(Type type, JToken jToken)
+        {
+            var ret = type.GetMethod("Parse", new[] { typeof(string) }).Invoke(null, new object[] { jToken.ToString() });
+            return ret;
         }
 
         private static object HandleInteger(Type type, JToken jToken)

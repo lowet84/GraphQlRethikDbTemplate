@@ -36,7 +36,7 @@ namespace SampleApp.Schema
         [Description("Search for books")]
         public Task<Book[]> SearchBook(UserContext context, NonNull<string> text)
         {
-            var data = context.Search<Book>("Title", text, UserContext.ReadType.WithDocument);
+            var data = context.Search<Book>("Title", text);
             return Task.FromResult(data);
         }
 
@@ -46,24 +46,23 @@ namespace SampleApp.Schema
             if (!bookId.IsIdentifierForType<Book>())
                 throw new ArgumentException("Id is not correct for type: Book");
             var data = context.Search<Series>(
-                expr => expr.Filter(s => s.G("Books").Contains(bookId.ToString())),
-                UserContext.ReadType.WithDocument);
+                expr => expr.Filter(s => s.G("Books").Contains(bookId.ToString())));
             return Task.FromResult(data);
         }
 
         [Description("Get all images")]
         public Task<Node[]> AllImageIds(UserContext context)
         {
-            var images = context.GetAll<Image>(UserContext.ReadType.WithDocument);
-            var imageFiles = context.GetAll<ImageFile>(UserContext.ReadType.WithDocument);
+            var images = context.GetAll<Image>();
+            var imageFiles = context.GetAll<ImageFile>();
             return Task.FromResult(GetNodes(images, imageFiles));
         }
 
         [Description("Get all audio")]
         public Task<Node[]> AllAudio(UserContext context)
         {
-            var audios = context.GetAll<Audio>(UserContext.ReadType.WithDocument);
-            var audioFiles = context.GetAll<AudioFile>(UserContext.ReadType.WithDocument);
+            var audios = context.GetAll<Audio>();
+            var audioFiles = context.GetAll<AudioFile>();
             return Task.FromResult(GetNodes(audios, audioFiles));
         }
 

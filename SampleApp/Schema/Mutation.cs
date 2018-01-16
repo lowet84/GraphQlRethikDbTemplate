@@ -20,7 +20,7 @@ namespace SampleApp.Schema
         NonNull<string> lastName)
         {
             var author = new Author(firstName, lastName);
-            var ret = context.AddDefault(author);
+            var ret = UserContext.AddDefault(author);
             return new DefaultResult<Author>(ret);
         }
 
@@ -32,7 +32,7 @@ namespace SampleApp.Schema
             var id = new Id(authorId);
             var authorDummy = Utils.CreateDummyObject<Author>(id);
             var book = new Book(title, authorDummy);
-            var ret = context.AddDefault(book);
+            var ret = UserContext.AddDefault(book);
             return new DefaultResult<Book>(ret);
         }
 
@@ -41,7 +41,7 @@ namespace SampleApp.Schema
             NonNull<string> name)
         {
             var series = new Series(name, null);
-            var ret = context.AddDefault(series);
+            var ret = UserContext.AddDefault(series);
             return new DefaultResult<Series>(ret);
         }
 
@@ -50,10 +50,10 @@ namespace SampleApp.Schema
             NonNull<string> seriesId,
             NonNull<string> bookId)
         {
-            var oldSeries = context.Get<Series>(new Id(seriesId), UserContext.ReadType.Shallow);
+            var oldSeries = UserContext.GetShallow<Series>(new Id(seriesId));
             var book = Utils.CreateDummyObject<Book>(new Id(bookId));
             var newSeries = new Series(oldSeries.Name, Utils.AddOrInitializeArray(oldSeries.Books, book));
-            var ret = context.UpdateDefault(newSeries, oldSeries.Id);
+            var ret = UserContext.UpdateDefault(newSeries, oldSeries.Id);
             return new DefaultResult<Series>(ret);
         }
 
@@ -67,13 +67,13 @@ namespace SampleApp.Schema
             if (!contentType.MediaType.Contains("image"))
                 return null;
 
-            var existing = context.Search<Image>("Source", imageUrl, UserContext.ReadType.Shallow);
+            var existing = UserContext.SearchShallow<Image>("Source", imageUrl);
 
             if (existing?.Length > 0) return new DefaultResult<Image>(existing.Single());
 
             var data = result.Content.ReadAsByteArrayAsync().Result;
             var image = new Image(Convert.ToBase64String(data), imageUrl, "image/jpeg");
-            context.AddDefault(image);
+            UserContext.AddDefault(image);
             return new DefaultResult<Image>(image);
         }
     }

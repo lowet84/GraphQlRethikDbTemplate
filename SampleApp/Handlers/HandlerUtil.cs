@@ -11,7 +11,7 @@ namespace SampleApp.Handlers
             var type = typeof(T);
             if (!id.IsIdentifierForType<T>())
                 throw new Exception($"Id is not valid for type {type.Name}");
-            var item = new UserContext().Get<T>(id, UserContext.ReadType.Shallow);
+            var item = UserContext.GetShallow<T>(id);
             return item;
         }
     }

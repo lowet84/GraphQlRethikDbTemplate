@@ -18,7 +18,8 @@ namespace SampleApp
             //AudioAndImage();
             //Clean();
             //FixIssues();
-            NullProperty();
+            //NullProperty();
+            Boolean();
         }
 
         private static void FixIssues()
@@ -125,6 +126,16 @@ namespace SampleApp
             var userContext = new UserContext("query{dummy{bookAuthors{author{id}}}}");
             UserContext.AddDefault(book);
             var test = userContext.Get<Book>(book.Id);
+        }
+
+        private static void Boolean()
+        {
+            var value = new Random().Next() > 0.5;
+            var test = new BoolTest(value);
+            UserContext.AddDefault(test);
+            var result = UserContext.GetAllShallow<BoolTest>().First().Value;
+            if(result != value)
+                throw new Exception("Values should be equal");
         }
     }
 }
