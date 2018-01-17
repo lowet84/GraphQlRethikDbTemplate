@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -147,6 +148,22 @@ namespace GraphQlRethinkDbLibrary.Schema
 
         private static object HandleObject(Type type, JToken jToken)
         {
+            if (type == typeof(DateTime))
+            {
+                // TODO: this is really just a hack, needs to be overhauled
+                var epochdate = jToken.Children().Cast<JProperty>().First(d=>d.Name=="epoch_time").Value.ToString();
+                var timezoneValue = jToken.Children().Cast<JProperty>().First(d => d.Name == "timezone")
+                    .Value.ToString();
+                var sign = timezoneValue.Substring(0, 1);
+                var hours = Convert.ToInt32(timezoneValue.Substring(1, 2));
+                var minutes = Convert.ToInt32(timezoneValue.Substring(4, 2));
+                var timeZoneTime = (hours * 60 + minutes) * (sign == "+" ? 1 : -1);
+                var date = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    .AddSeconds(Convert.ToDouble(epochdate))
+                    .AddMinutes(timeZoneTime);
+                return date;
+            }
+
             var ret = CreateEmptyObject(type);
             var properties = type.GetProperties();
             foreach (var property in properties)

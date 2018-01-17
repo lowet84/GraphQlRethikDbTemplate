@@ -20,6 +20,7 @@ namespace SampleApp
             //FixIssues();
             //NullProperty();
             Boolean();
+            DateTime();
         }
 
         private static void FixIssues()
@@ -136,6 +137,17 @@ namespace SampleApp
             var result = UserContext.GetAllShallow<BoolTest>().First().Value;
             if(result != value)
                 throw new Exception("Values should be equal");
+        }
+
+        private static void DateTime()
+        {
+            var date = System.DateTime.Now;
+            var test = new DateTimeTest(date);
+            UserContext.AddDefault(test);
+            var result = UserContext.GetAllShallow<DateTimeTest>().First().Value;
+            var diff = Math.Abs(result.Ticks - date.Ticks);
+            if (diff > 10000)
+                throw new Exception("DateTime is not working");
         }
     }
 }
