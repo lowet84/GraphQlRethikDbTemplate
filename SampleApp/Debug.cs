@@ -19,8 +19,9 @@ namespace SampleApp
             //Clean();
             //FixIssues();
             //NullProperty();
-            Boolean();
-            DateTime();
+            //Boolean();
+            //DateTime();
+            Float();
         }
 
         private static void FixIssues()
@@ -148,6 +149,15 @@ namespace SampleApp
             var diff = Math.Abs(result.Ticks - date.Ticks);
             if (diff > 10000)
                 throw new Exception("DateTime is not working");
+        }
+
+        private static void Float()
+        {
+            var test = new FloatTest(0.5);
+            UserContext.AddDefault(test);
+            var result = UserContext.GetAllShallow<FloatTest>().First().Value;
+            if(!result.Equals(0.5))
+                throw new Exception("Float is not working");
         }
     }
 }
