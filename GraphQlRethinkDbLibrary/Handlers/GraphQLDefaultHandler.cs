@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using GraphQlRethinkDbLibrary.Schema;
+using GraphQL;
 using GraphQL.Conventions.Relay;
 using GraphQL.Conventions.Web;
 using Microsoft.AspNetCore.Http;
@@ -62,6 +64,8 @@ namespace GraphQlRethinkDbLibrary.Handlers
             return new UserContext(body);
         }
 
+        public virtual void HandleError(string errorMessage) { }
+
         public override async Task Process(HttpContext context)
         {
             if (string.Compare(context.Request.Method, "OPTIONS", StringComparison.OrdinalIgnoreCase) == 0)
@@ -83,6 +87,10 @@ namespace GraphQlRethinkDbLibrary.Handlers
                 .ProcessRequest(Request.New(body), userContext);
             context.Response.Headers.Add("Content-Type", "application/json; charset=utf-8");
             context.Response.StatusCode = result.Errors?.Count > 0 ? 400 : 200;
+            foreach (var error in result.Errors ?? new List<ExecutionError>())
+            {
+                HandleError(error.Message);
+            }
             await context.Response.WriteAsync(result.Body);
         }
     }

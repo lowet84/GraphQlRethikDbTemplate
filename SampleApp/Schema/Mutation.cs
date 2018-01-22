@@ -76,5 +76,10 @@ namespace SampleApp.Schema
             UserContext.AddDefault(image);
             return new DefaultResult<Image>(image);
         }
+
+        public DefaultResult<bool> ThisThowsAnError(UserContext context)
+        {
+            throw new Exception("Dummu exception");
+        }
     }
 }

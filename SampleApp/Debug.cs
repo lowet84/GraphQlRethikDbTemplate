@@ -4,7 +4,9 @@ using System.Linq;
 using System.Net.Http;
 using GraphQlRethinkDbLibrary;
 using GraphQlRethinkDbLibrary.Database;
+using RethinkDb.Driver.Ast;
 using SampleApp.Model;
+using Random = System.Random;
 
 namespace SampleApp
 {
@@ -21,7 +23,7 @@ namespace SampleApp
             //NullProperty();
             //Boolean();
             //DateTime();
-            Float();
+            //Float();
         }
 
         private static void FixIssues()

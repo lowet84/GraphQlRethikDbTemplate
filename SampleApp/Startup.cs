@@ -24,7 +24,7 @@ namespace SampleApp
                 env,
                 new DatabaseName(Program.DatabaseName),
                 new DatabaseUrl("localhost"),
-                new GraphQlDefaultHandler(),
+                new GraphQlHandler(),
                 new ImageFileHandler(),
                 new AudioFileHandler());
         }
