@@ -7,6 +7,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleApp", "SampleApp\Samp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQlRethinkDbLibrary", "GraphQlRethinkDbLibrary\GraphQlRethinkDbLibrary.csproj", "{C2BCA8B0-8153-438D-8BA4-DFC83D42C6FE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQlRethinkDbCore", "GraphQlRethinkDbCore\GraphQlRethinkDbCore.csproj", "{8446BEAF-BD24-4559-A061-72F54691C8F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQlRethinkDbHttp", "GraphQlRethinkDbHttp\GraphQlRethinkDbHttp.csproj", "{45A13708-3A34-4821-BCB7-D9FBD74FF0E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleAppHttp", "SampleAppHttp\SampleAppHttp.csproj", "{BB3B85A8-26C0-43D1-AFA3-F38989338EF2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +27,18 @@ Global
 		{C2BCA8B0-8153-438D-8BA4-DFC83D42C6FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2BCA8B0-8153-438D-8BA4-DFC83D42C6FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2BCA8B0-8153-438D-8BA4-DFC83D42C6FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8446BEAF-BD24-4559-A061-72F54691C8F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8446BEAF-BD24-4559-A061-72F54691C8F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8446BEAF-BD24-4559-A061-72F54691C8F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8446BEAF-BD24-4559-A061-72F54691C8F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45A13708-3A34-4821-BCB7-D9FBD74FF0E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45A13708-3A34-4821-BCB7-D9FBD74FF0E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45A13708-3A34-4821-BCB7-D9FBD74FF0E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45A13708-3A34-4821-BCB7-D9FBD74FF0E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB3B85A8-26C0-43D1-AFA3-F38989338EF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB3B85A8-26C0-43D1-AFA3-F38989338EF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB3B85A8-26C0-43D1-AFA3-F38989338EF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB3B85A8-26C0-43D1-AFA3-F38989338EF2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

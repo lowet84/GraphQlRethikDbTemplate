@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using GraphQlRethinkDbCore;
+using GraphQlRethinkDbCore.Database;
 using GraphQlRethinkDbLibrary;
-using GraphQlRethinkDbLibrary.Database;
 using RethinkDb.Driver.Ast;
 using SampleApp.Model;
 using Random = System.Random;

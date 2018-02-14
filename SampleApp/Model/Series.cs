@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using GraphQlRethinkDbLibrary.Schema.Types;
+using GraphQlRethinkDbCore.Schema.Types;
 using GraphQL.Conventions;
 using Newtonsoft.Json;
 

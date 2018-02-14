@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using GraphQlRethinkDbLibrary.Attributes;
-using GraphQlRethinkDbLibrary.Schema.Types;
+using GraphQlRethinkDbCore.Attributes;
+using GraphQlRethinkDbCore.Schema.Types;
 using GraphQL;
 using GraphQL.Conventions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace GraphQlRethinkDbLibrary.Schema
+namespace GraphQlRethinkDbCore.Schema
 {
     public static class Utils
     {
@@ -185,7 +184,7 @@ namespace GraphQlRethinkDbLibrary.Schema
             return propertyInfo.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName ?? propertyInfo.Name;
         }
 
-        internal static IEnumerable<FieldInfo> GetFields(Type type)
+        public static IEnumerable<FieldInfo> GetFields(Type type)
         {
             var ret = new List<FieldInfo>(type.GetFields(Flags));
             if (type.BaseType != null)

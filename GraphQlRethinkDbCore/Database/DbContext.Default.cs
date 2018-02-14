@@ -1,12 +1,12 @@
 ﻿using System;
-using GraphQlRethinkDbLibrary.Schema;
-using GraphQlRethinkDbLibrary.Schema.Types;
+using GraphQlRethinkDbCore.Schema;
+using GraphQlRethinkDbCore.Schema.Types;
 using GraphQL.Conventions;
 using GraphQLParser.AST;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace GraphQlRethinkDbLibrary.Database
+namespace GraphQlRethinkDbCore.Database
 {
     public partial class DbContext
     {

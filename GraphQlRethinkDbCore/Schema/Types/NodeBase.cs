@@ -1,9 +1,9 @@
-﻿using GraphQlRethinkDbLibrary.Schema.Converters;
+﻿using GraphQlRethinkDbCore.Schema.Converters;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
 using Newtonsoft.Json;
 
-namespace GraphQlRethinkDbLibrary.Schema.Types
+namespace GraphQlRethinkDbCore.Schema.Types
 {
     public abstract class NodeBase<T> : NodeBase
     {

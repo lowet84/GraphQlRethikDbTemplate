@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
+using GraphQlRethinkDbCore.Schema.Types;
 using GraphQlRethinkDbLibrary.Handlers;
-using GraphQlRethinkDbLibrary.Schema.Types;
 using Newtonsoft.Json;
 
 namespace SampleApp.Model

@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using GraphQlRethinkDbLibrary.Database;
+using GraphQlRethinkDbCore;
+using GraphQlRethinkDbCore.Database;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

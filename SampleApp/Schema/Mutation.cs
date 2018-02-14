@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Http;
+using GraphQlRethinkDbCore;
+using GraphQlRethinkDbCore.Schema;
+using GraphQlRethinkDbCore.Schema.Output;
 using GraphQlRethinkDbLibrary;
-using GraphQlRethinkDbLibrary.Schema;
-using GraphQlRethinkDbLibrary.Schema.Output;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;
 using SampleApp.Model;

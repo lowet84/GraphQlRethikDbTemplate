@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using GraphQlRethinkDbLibrary.Database;
-using GraphQlRethinkDbLibrary.Schema;
-using GraphQlRethinkDbLibrary.Schema.Types;
+using GraphQlRethinkDbCore.Database;
+using GraphQlRethinkDbCore.Schema;
+using GraphQlRethinkDbCore.Schema.Types;
 using GraphQL.Conventions;
 using GraphQLParser;
 using GraphQLParser.AST;
 using Newtonsoft.Json.Linq;
 using RethinkDb.Driver.Ast;
 
-namespace GraphQlRethinkDbLibrary
+namespace GraphQlRethinkDbCore
 {
     public class UserContext : IUserContext, IDataLoaderContextProvider
     {

@@ -2,7 +2,7 @@
 using System.Reflection;
 using GraphQL.Conventions;
 
-namespace GraphQlRethinkDbLibrary
+namespace GraphQlRethinkDbCore
 {
     public class DependencyInjector : IDependencyInjector
     {

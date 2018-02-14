@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using RethinkDb.Driver;
 using RethinkDb.Driver.Net.Clustering;
 
-namespace GraphQlRethinkDbLibrary.Database
+namespace GraphQlRethinkDbCore.Database
 {
     public partial class DbContext
     {

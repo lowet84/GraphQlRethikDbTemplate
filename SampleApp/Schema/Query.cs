@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GraphQlRethinkDbCore;
 using GraphQlRethinkDbLibrary;
 using GraphQL.Conventions;
 using GraphQL.Conventions.Relay;

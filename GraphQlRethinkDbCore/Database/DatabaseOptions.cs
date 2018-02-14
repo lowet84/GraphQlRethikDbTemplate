@@ -1,4 +1,4 @@
-﻿namespace GraphQlRethinkDbLibrary.Database
+﻿namespace GraphQlRethinkDbCore.Database
 {
     public class DatabaseName
     {

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using GraphQlRethinkDbLibrary.Attributes;
-using GraphQlRethinkDbLibrary.Schema;
-using GraphQL.Conventions;
+using GraphQlRethinkDbCore.Attributes;
+using GraphQlRethinkDbCore.Schema;
 
-namespace GraphQlRethinkDbLibrary.Database
+namespace GraphQlRethinkDbCore.Database
 {
     public partial class DbContext
     {

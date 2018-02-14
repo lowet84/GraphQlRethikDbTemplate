@@ -1,5 +1,5 @@
-﻿using GraphQlRethinkDbLibrary.Attributes;
-using GraphQlRethinkDbLibrary.Schema.Types;
+﻿using GraphQlRethinkDbCore.Attributes;
+using GraphQlRethinkDbCore.Schema.Types;
 using GraphQL.Conventions;
 
 namespace SampleApp.Model

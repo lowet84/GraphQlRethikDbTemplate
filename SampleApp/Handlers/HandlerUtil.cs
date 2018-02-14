@@ -1,4 +1,5 @@
 ﻿using System;
+using GraphQlRethinkDbCore;
 using GraphQlRethinkDbLibrary;
 using GraphQL.Conventions;
 

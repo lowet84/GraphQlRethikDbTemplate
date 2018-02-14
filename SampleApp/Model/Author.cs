@@ -1,4 +1,4 @@
-﻿using GraphQlRethinkDbLibrary.Schema.Types;
+﻿using GraphQlRethinkDbCore.Schema.Types;
 
 namespace SampleApp.Model
 {

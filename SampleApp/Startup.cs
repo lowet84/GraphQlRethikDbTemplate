@@ -1,4 +1,4 @@
-﻿using GraphQlRethinkDbLibrary.Database;
+﻿using GraphQlRethinkDbCore.Database;
 using GraphQlRethinkDbLibrary.Handlers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

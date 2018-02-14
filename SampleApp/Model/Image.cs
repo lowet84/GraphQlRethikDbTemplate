@@ -1,6 +1,6 @@
 ﻿using System;
+using GraphQlRethinkDbCore.Schema.Types;
 using GraphQlRethinkDbLibrary.Handlers;
-using GraphQlRethinkDbLibrary.Schema.Types;
 
 namespace SampleApp.Model
 {

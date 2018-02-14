@@ -14,22 +14,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Database\DataObjects\**" />
-    <Compile Remove="Schema\Input\**" />
-    <EmbeddedResource Remove="Database\DataObjects\**" />
-    <EmbeddedResource Remove="Schema\Input\**" />
-    <None Remove="Database\DataObjects\**" />
-    <None Remove="Schema\Input\**" />
+    <PackageReference Include="GraphQL.Conventions" Version="1.3.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="RethinkDb.Driver" Version="2.3.20" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL.Conventions" Version="1.3.9" />
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="RethinkDb.Driver" Version="2.3.20" />
+    <ProjectReference Include="..\GraphQlRethinkDbCore\GraphQlRethinkDbCore.csproj" />
   </ItemGroup>
 
 </Project>
