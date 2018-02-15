@@ -2,4 +2,8 @@ pipeline:
   core:
     image: microsoft/aspnetcore-build:2.0.0
     commands:
+      - apt-get update && apt-get install -y jq nuget
+      - nuget setApiKey $API_KEY
       - sh publish.sh GraphQlRethinkDbCore
+      - sh publish.sh GraphQlRethinkDbLibrary
+      - sh publish.sh GraphQlRethinkDbHttp
