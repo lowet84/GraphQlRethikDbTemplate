@@ -5,6 +5,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using GraphQlRethinkDbCore;
+using GraphQlRethinkDbCore.Database;
 using GraphQlRethinkDbHttp.Handlers;
 
 namespace GraphQlRethinkDbHttp
@@ -18,16 +20,17 @@ namespace GraphQlRethinkDbHttp
         public int Port { get; }
         public string Host { get; }
 
-        /// <summary>
-        /// Construct server with given port.
-        /// </summary>
-        /// <param name="path">Directory path to serve.</param>
-        /// <param name="port">Port of the server.</param>
-        public SimpleHttpServer(int port, string host, params SpecialHandler[] handlers)
+        public SimpleHttpServer(int port, string host, DatabaseName databaseName, DatabaseUrl databaseUrl, params SpecialHandler[] handlers)
         {
+            new UserContext(null, databaseUrl, databaseName);
             Handlers = handlers;
             Port = port;
             Host = host;
+            Console.WriteLine($"Running server on port: {port}");
+            foreach (var handler in handlers)
+            {
+                Console.WriteLine($"Using handler: {handler.GetType().Name} on /{handler.Path}");
+            }
             _serverThread = new Thread(Listen);
             _serverThread.Start();
         }
@@ -50,7 +53,7 @@ namespace GraphQlRethinkDbHttp
                     var context = _listener.GetContext();
                     Process(context);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     // ignored
                 }
@@ -60,7 +63,7 @@ namespace GraphQlRethinkDbHttp
         private void Process(HttpListenerContext context)
         {
             var specialHandler = Handlers
-                .FirstOrDefault(d => context.Request.RawUrl.StartsWith(d.Path));
+                .FirstOrDefault(d => context.Request.RawUrl.Split('/').FirstOrDefault(e => !string.IsNullOrEmpty(e)) == d.Path);
 
             if (specialHandler != null)
                 specialHandler.Process(context);
@@ -75,7 +78,8 @@ namespace GraphQlRethinkDbHttp
             const string indexDefault = "/index.html";
             var path = context.Request.RawUrl;
             if (path == "/") path = indexDefault;
-            var filename = Path.Combine(".", "static", path);
+            var pathParts = new[] { ".", "static" }.Concat(path.Split('/')).Where(d => !string.IsNullOrEmpty(d)).ToArray();
+            var filename = Path.Combine(pathParts);
             if (File.Exists(filename))
             {
                 try
@@ -86,7 +90,7 @@ namespace GraphQlRethinkDbHttp
                     context.Response.ContentType = MimeUtil.MimeTypeMappings.TryGetValue(Path.GetExtension(filename), out var mime) ? mime : "application/octet-stream";
                     context.Response.ContentLength64 = input.Length;
                     context.Response.AddHeader("Date", DateTime.Now.ToString("r"));
-                    context.Response.AddHeader("Last-Modified", System.IO.File.GetLastWriteTime(filename).ToString("r"));
+                    context.Response.AddHeader("Last-Modified", File.GetLastWriteTime(filename).ToString("r"));
 
                     var buffer = new byte[1024 * 16];
                     int nbytes;
