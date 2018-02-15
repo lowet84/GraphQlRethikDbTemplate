@@ -7,3 +7,4 @@ pipeline:
       # - sh publish.sh GraphQlRethinkDbCore
       # - sh publish.sh GraphQlRethinkDbLibrary
       # - sh publish.sh GraphQlRethinkDbHttp
+      secrets: [ api_key ]
