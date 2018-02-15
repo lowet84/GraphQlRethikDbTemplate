@@ -6,5 +6,9 @@ VERSION=$(cat GraphQlRethinkDbCore.csproj | grep PackageVersion | sed -n -r -e '
 NUGET_VERSION=$(curl https://api-v2v3search-0.nuget.org/query?q=GraphQlRethinkDbCore | jq '.data[0].versions[-1].version' --raw-output)
 echo $VERSION
 echo $NUGET_VERSION
-'[ 1 == 1 ] && exit 0'
-echo "Update"
+if [ 1 = 1 ]
+then
+  echo "Same version, exiting build"
+  exit 0
+fi
+echo New version detected. Building and publishing
