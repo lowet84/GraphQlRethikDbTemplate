@@ -8,3 +8,5 @@ pipeline:
       - NUGET_VERSION=$(curl https://api-v2v3search-0.nuget.org/query?q=GraphQlRethinkDbCore | jq '.data[0].versions[-1].version' --raw-output)
       - echo $VERSION
       - echo $NUGET_VERSION
+      - '[ 1 == 0 ] && exit 0'
+      - echo "Update"
