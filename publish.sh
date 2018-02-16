@@ -16,4 +16,4 @@ dotnet restore
 dotnet pack
 FILE=$(find . -name *.nupkg)
 echo pushing file: $FILE
-nuget push $FILE -Source https://api.nuget.org/v3/index.json -ApiKey $2
+dotnet nuget push $FILE -s https://api.nuget.org/v3/index.json -k $2
