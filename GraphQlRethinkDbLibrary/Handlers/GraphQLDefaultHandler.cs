@@ -62,7 +62,7 @@ namespace GraphQlRethinkDbLibrary.Handlers
 
         public virtual UserContext GetUserContext(string body)
         {
-            return new UserContext(body);
+            return new DefaultUserContext(body);
         }
 
         public virtual void HandleError(string errorMessage) { }

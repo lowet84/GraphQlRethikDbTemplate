@@ -22,18 +22,23 @@ namespace GraphQlRethinkDbCore
             Shallow
         }
 
+        public static void InitDb(DatabaseUrl databaseUrl, DatabaseName databaseName)
+        {
+            new UserContext(null, databaseUrl, databaseName);
+        }
+
         public GraphQLDocument Document { get; }
 
-        public UserContext() : this(null) { }
+        protected UserContext() : this(null) { }
 
-        public UserContext(string body) : this(body, null, null) { }
+        protected UserContext(string body) : this(body, null, null) { }
 
-        public UserContext(string body, string userName) : this(body, null, null)
+        protected UserContext(string body, string userName) : this(body, null, null)
         {
             UserName = userName;
         }
 
-        public UserContext(string body, DatabaseUrl databaseUrl, DatabaseName databaseName)
+        protected UserContext(string body, DatabaseUrl databaseUrl, DatabaseName databaseName)
         {
             if (!DbContext.Initalized)
                 DbContext.Initialize(databaseUrl.Url, databaseName.Name);
@@ -56,6 +61,11 @@ namespace GraphQlRethinkDbCore
         public T Get<T>(Id id) where T : class
         {
             return Get<T>(id, ReadType.WithDocument);
+        }
+
+        public static T Get<T>(Id id, string properties) where T : class
+        {
+            return new UserContext($"query{{dummy{{{properties}}}}}").Get<T>(id);
         }
 
         public static T GetShallow<T>(Id id) where T : class
@@ -165,11 +175,19 @@ namespace GraphQlRethinkDbCore
             return Task.CompletedTask;
         }
 
-        public void Reset()
+        public static void Reset()
         {
             // ### DANGER!!!!! ###
             // This will delete your database
             DbContext.Instance.Reset();
+        }
+    }
+
+    public class DefaultUserContext : UserContext
+    {
+        public DefaultUserContext(string body) : base(body)
+        {
+
         }
     }
 }

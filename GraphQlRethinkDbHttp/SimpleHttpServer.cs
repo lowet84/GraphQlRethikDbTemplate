@@ -22,7 +22,7 @@ namespace GraphQlRethinkDbHttp
 
         public SimpleHttpServer(int port, string host, DatabaseName databaseName, DatabaseUrl databaseUrl, params SpecialHandler[] handlers)
         {
-            new UserContext(null, databaseUrl, databaseName);
+            UserContext.InitDb(databaseUrl, databaseName);
             Handlers = handlers;
             Port = port;
             Host = host;

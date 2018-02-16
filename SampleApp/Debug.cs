@@ -17,11 +17,11 @@ namespace SampleApp
         {
             Reset();
             //Delete();
-            //Basic();
+            Basic();
             //AudioAndImage();
             //Clean();
             //FixIssues();
-            //NullProperty();
+            NullProperty();
             //Boolean();
             //DateTime();
             //Float();
@@ -45,10 +45,10 @@ namespace SampleApp
             var newSeries = new Series(series.Name, new[] { book });
 
             var query =
-                @"query{series(id:""#####""){authors{name{fistName, lastName}} name books{id title bookAuthors{author{name{fistName lastName}}}} }}";
+                @"authors{name{fistName, lastName}} name books{id title bookAuthors{author{name{fistName lastName}}}}";
             query = query.Replace("#####", series.Id.ToString());
             var hostName = Environment.GetEnvironmentVariable("DATABASE");
-            var userContext = new UserContext(query, new DatabaseUrl(hostName), new DatabaseName(Program.DatabaseName));
+            UserContext.InitDb(new DatabaseUrl(hostName), new DatabaseName(Program.DatabaseName));
 
             UserContext.AddDefault(author);
             UserContext.UpdateDefault(author2, author.Id);
@@ -57,9 +57,9 @@ namespace SampleApp
             UserContext.AddDefault(series2);
             UserContext.UpdateDefault(newSeries, series.Id);
 
-            var readSeries = userContext.Get<Series>(series.Id);
+            var readSeries = UserContext.Get<Series>(series.Id, query);
 
-            var results = userContext.Search<Series>(
+            var results = UserContext.SearchShallow<Series>(
                 expr=>expr.Filter(s=>s.G("Books").Contains(readSeries.Books.First().Id.ToString())));
         }
 
@@ -100,8 +100,7 @@ namespace SampleApp
 
         private static void Reset()
         {
-            var context = new UserContext();
-            context.Reset();
+            UserContext.Reset();
         }
 
         private static void Delete()
@@ -113,8 +112,6 @@ namespace SampleApp
             var query =
                 @"query{series(id:""#####""){authors{name{fistName, lastName}} name books{id title bookAuthors{author{name{fistName lastName}}}} }}";
             query = query.Replace("#####", series.Id.ToString());
-
-            var context = new UserContext(query);
 
             UserContext.AddDefault(author);
             UserContext.AddDefault(book);
@@ -128,9 +125,8 @@ namespace SampleApp
         private static void NullProperty()
         {
             var book = new Book("dsisdf", null);
-            var userContext = new UserContext("query{dummy{bookAuthors{author{id}}}}");
             UserContext.AddDefault(book);
-            var test = userContext.Get<Book>(book.Id);
+            var test = UserContext.Get<Book>(book.Id, "bookAuthors{author{id}}");
         }
 
         private static void Boolean()

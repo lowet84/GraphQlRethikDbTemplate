@@ -21,7 +21,7 @@ namespace GraphQlRethinkDbLibrary.Handlers
             DatabaseUrl databaseUrl,
             params SpecialHandler[] specialHandlers)
         {
-            new UserContext(null, databaseUrl, databaseName);
+            UserContext.InitDb(databaseUrl, databaseName);
             SpecialHandlers = specialHandlers;
             Env = env;
             app.Run(DefaultHandleRequest);

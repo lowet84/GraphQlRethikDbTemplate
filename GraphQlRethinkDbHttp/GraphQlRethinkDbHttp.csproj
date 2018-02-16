@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>GraphQlRethinkDbHttp</PackageId>
-    <PackageVersion>1.0.0</PackageVersion>
+    <PackageVersion>1.0.1</PackageVersion>
     <Authors>Fredrik Löwenhamn</Authors>
     <Description>Framework to create web apps with GraphQL and RethinkDb, lite version refactored to get rid of asp.net</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
