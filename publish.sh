@@ -15,4 +15,5 @@ echo New version detected. Building and publishing
 dotnet restore
 dotnet pack
 FILE=$(find . -name *.nupkg)
+echo pushing file: $FILE
 nuget push $FILE -Source https://api.nuget.org/v3/index.json -ApiKey $2
