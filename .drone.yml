@@ -2,8 +2,7 @@ pipeline:
   core:
     image: lowet84/aspnetcore-builder
     commands:
-      - nuget setApiKey $API_KEY
-      - sh publish.sh GraphQlRethinkDbCore
-      - sh publish.sh GraphQlRethinkDbLibrary
-      - sh publish.sh GraphQlRethinkDbHttp
+      - sh publish.sh GraphQlRethinkDbCore $API_KEY
+      - sh publish.sh GraphQlRethinkDbLibrary $API_KEY
+      - sh publish.sh GraphQlRethinkDbHttp $API_KEY
     secrets: [ api_key ]
