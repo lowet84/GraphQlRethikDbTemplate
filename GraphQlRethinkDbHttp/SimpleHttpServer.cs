@@ -103,7 +103,7 @@ namespace GraphQlRethinkDbHttp
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    WriteMessage(ex);
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 }
 
@@ -114,6 +114,13 @@ namespace GraphQlRethinkDbHttp
             }
 
             context.Response.OutputStream.Close();
+        }
+
+        private static void WriteMessage(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            if (ex.InnerException != null)
+                WriteMessage(ex.InnerException);
         }
     }
 }
