@@ -73,7 +73,7 @@ namespace GraphQlRethinkDbHttp
             }
         }
 
-        public static void ProcessStaticFiles(HttpListenerContext context)
+        public void ProcessStaticFiles(HttpListenerContext context)
         {
             const string indexDefault = "/index.html";
             var path = context.Request.RawUrl;
@@ -120,7 +120,7 @@ namespace GraphQlRethinkDbHttp
             context.Response.OutputStream.Close();
         }
 
-        private static void WriteMessage(Exception ex)
+        private void WriteMessage(Exception ex)
         {
             Console.WriteLine(ex.Message);
             if (ex.InnerException != null)
@@ -128,7 +128,7 @@ namespace GraphQlRethinkDbHttp
         }
 
 
-        public static Dictionary<string, string> MimeTypeMappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
+        public Dictionary<string, string> MimeTypeMappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
         {".asf", "video/x-ms-asf"},
         {".asx", "video/x-ms-asf"},
         {".avi", "video/x-msvideo"},
