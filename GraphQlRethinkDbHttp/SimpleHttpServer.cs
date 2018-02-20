@@ -87,7 +87,11 @@ namespace GraphQlRethinkDbHttp
                     Stream input = new FileStream(filename, FileMode.Open);
 
                     //Adding permanent http response headers
-                    context.Response.ContentType = MimeUtil.MimeTypeMappings.TryGetValue(Path.GetExtension(filename), out var mime) ? mime : "application/octet-stream";
+                    var extension = Path.GetExtension(filename);
+                    var contentType = MimeUtil.MimeTypeMappings.ContainsKey(extension)
+                        ? MimeUtil.MimeTypeMappings[extension]
+                        : "application/octet-stream";
+                    context.Response.ContentType = contentType;
                     context.Response.ContentLength64 = input.Length;
                     context.Response.AddHeader("Date", DateTime.Now.ToString("r"));
                     context.Response.AddHeader("Last-Modified", File.GetLastWriteTime(filename).ToString("r"));
