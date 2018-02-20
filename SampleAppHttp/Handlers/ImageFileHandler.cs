@@ -12,7 +12,7 @@ namespace SampleAppHttp.Handlers
             var imageFile = new ImageFile(key);
             var path = System.IO.Path.Combine(".", "static", imageFile.FileName);
             var bytes = File.ReadAllBytes(path);
-            MimeUtil.MimeTypeMappings.TryGetValue(System.IO.Path.GetExtension(path), out var mime);
+            SimpleHttpServer.MimeTypeMappings.TryGetValue(System.IO.Path.GetExtension(path), out var mime);
             var ret = new ImageFile.ImageFileData(mime, bytes);
             return ret;
         }
