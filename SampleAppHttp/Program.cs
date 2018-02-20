@@ -16,7 +16,7 @@ namespace SampleAppHttp
                 3000,
                 "localhost",
                 new DatabaseName(DatabaseName),
-                new DatabaseUrl("localhost"),
+                new DatabaseUrl(Environment.GetEnvironmentVariable("DATABASE")),
                 new GraphQlDefaultHandler(),
                 new ImageFileHandler()
             );
