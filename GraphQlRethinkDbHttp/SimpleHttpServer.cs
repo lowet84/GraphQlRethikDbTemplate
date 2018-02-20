@@ -128,7 +128,7 @@ namespace GraphQlRethinkDbHttp
         }
 
 
-        public Dictionary<string, string> MimeTypeMappings = new Dictionary<string, string>{
+        public static readonly Dictionary<string, string> MimeTypeMappings = new Dictionary<string, string> {
         {".asf", "video/x-ms-asf"},
         {".asx", "video/x-ms-asf"},
         {".avi", "video/x-msvideo"},
