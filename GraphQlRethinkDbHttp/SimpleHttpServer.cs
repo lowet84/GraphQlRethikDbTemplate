@@ -128,7 +128,7 @@ namespace GraphQlRethinkDbHttp
         }
 
 
-        public static readonly IDictionary<string, string> MimeTypeMappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
+        public static Dictionary<string, string> MimeTypeMappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
         {".asf", "video/x-ms-asf"},
         {".asx", "video/x-ms-asf"},
         {".avi", "video/x-msvideo"},
