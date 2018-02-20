@@ -101,8 +101,9 @@ namespace GraphQlRethinkDbHttp
                     context.Response.StatusCode = (int)HttpStatusCode.OK;
                     context.Response.OutputStream.Flush();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Console.WriteLine(ex.Message);
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 }
 
